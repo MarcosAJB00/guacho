@@ -70,7 +70,7 @@ contains
     real, intent(out) :: u(neq,nxmin:nxmax,nymin:nymax,nzmin:nzmax)
     !logical ::  isInDomain
     integer :: i,j,k
-    integer :: yj,xi
+    integer :: zk,yj,xi
     real    :: pos(3)
     !  initial MP spectra parameters
     real    :: emin, emax, deltaE, gamma_lmp, N0, chi0
@@ -121,44 +121,46 @@ contains
 
     if (uniform) then
       !Insert homogenously distributed particles
-      do yj=4,ny,8
-        do xi=4,nx,8
+      do zk=4,ny,8
+        do yj=4,ny,8
+          do xi=4,nx,8
 
-          !  position of MPs (respect to a corner --needed by isInDomain--)
-          pos(1)= real(xi+ coords(0)*nx + 0.5) * dx
-          pos(2)= real(yj+ coords(1)*ny + 0.5) * dy
-          pos(3)= real( 1+ coords(2)*nz + 0.5) * dz
+            !  position of MPs (respect to a corner --needed by isInDomain--)
+            pos(1)= real(xi+ coords(0)*nx + 0.5) * dx
+            pos(2)= real(yj+ coords(1)*ny + 0.5) * dy
+            pos(3)= real(zk+ coords(2)*nz + 0.5) * dz
 
-          if(isInDomain(pos) ) then
-            n_activeMP            = n_activeMP + 1
-            partOwner(n_activeMP) = rank
-            partID   (n_activeMP) = n_activeMP + rank*N_MP
-            Q_MP0(n_activeMP,:) = 0.
-            Q_MP0(n_activeMP,1:3) = pos(:)
+            if(isInDomain(pos) ) then
+              n_activeMP            = n_activeMP + 1
+              partOwner(n_activeMP) = rank
+              partID   (n_activeMP) = n_activeMP + rank*N_MP
+              Q_MP0(n_activeMP,:) = 0.
+              Q_MP0(n_activeMP,1:3) = pos(:)
 
-            !  Interpolate density to normalize SED
-            call interpBD(Q_MP0(n_activeMP,1:3),ind,weights)
-            rhoI = 0.0
-            l    = 1
-            do k= ind(3),ind(3)+1
-              do j=ind(2),ind(2)+1
-                do i=ind(1),ind(1)+1
-                  rhoI = rhoI + u(1,i,j,k) * weights(l)
-                  l  = l + 1
+              !  Interpolate density to normalize SED
+              call interpBD(Q_MP0(n_activeMP,1:3),ind,weights)
+              rhoI = 0.0
+              l    = 1
+              do k= ind(3),ind(3)+1
+                do j=ind(2),ind(2)+1
+                  do i=ind(1),ind(1)+1
+                    rhoI = rhoI + u(1,i,j,k) * weights(l)
+                    l  = l + 1
+                  end do
                 end do
               end do
-            end do
-            N0     =  1.0e-6 / rhoI
-            chi0   = N0 * (1.-gamma_lmp)/                                      &
-                          ( Emax**(1.-gamma_lmp)-Emin**(1.-gamma_lmp) )
+              N0     =  1.0e-6 / rhoI
+              chi0   = N0 * (1.-gamma_lmp)/                                      &
+                            ( Emax**(1.-gamma_lmp)-Emin**(1.-gamma_lmp) )
 
-            do i = 1,NBinsSEDMP
-              MP_SED(1,i,n_activeMP)=10.**(log10(Emin)+real(i-1)*deltaE)
-              MP_SED(2,i,n_activeMP)= chi0*MP_SED(1,i,n_activeMP)**(-gamma_lmp)
-            end do
+              do i = 1,NBinsSEDMP
+                MP_SED(1,i,n_activeMP)=10.**(log10(Emin)+real(i-1)*deltaE)
+                MP_SED(2,i,n_activeMP)= chi0*MP_SED(1,i,n_activeMP)**(-gamma_lmp)
+              end do
 
-          endif
+            endif
 
+          end do
         end do
       end do
     else
