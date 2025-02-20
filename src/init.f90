@@ -50,6 +50,7 @@ contains
     implicit none
     real,    intent(out) ::tprint
     integer, intent(out) :: itprint
+    real :: Lx, Ly, Lz
 
 #ifdef MPIP
     integer :: err, nps
@@ -118,6 +119,31 @@ contains
     dx=xmax/nxtot
     dy=ymax/nytot
     dz=zmax/nztot
+
+    !  processor physical domain bounds
+    !  Length of MPI block in each direction
+    Lx = xmax / real(MPI_NBX)
+    Ly = ymax / real(MPI_NBY)
+    Lz = zmax / real(MPI_NBZ)
+
+    !  find lower and upper bounds per processor
+    XBounds(1) = Lx * real( coords(0) )
+    YBounds(1) = Ly * real( coords(1) )
+    ZBounds(1) = Lz * real( coords(2) )
+
+    XBounds(2) = XBounds(1) + Lx
+    YBounds(2) = YBounds(1) + Ly
+    ZBounds(2) = ZBounds(1) + Lz
+
+    if (rank == master) print'(a)', ' '
+    if (rank == master) print'(a)',                                           &
+    'Physical domain bounds per processor (code units)'
+    print'(a,i3,a,2f7.3,a,2f7.3,a,2f7.3)','rank ',rank, ' x :', xBounds(:),   &
+                                                        ' y :', yBounds(:),   &
+                                                        ' z :', zBounds(:)
+    call mpi_barrier(mpi_comm_world, err)
+    if (rank == master) print'(a)', ' '
+
 
     !   initialize time integration
     currentIteration = 1
