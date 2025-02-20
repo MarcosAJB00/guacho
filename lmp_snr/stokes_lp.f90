@@ -77,7 +77,7 @@ subroutine init_stokes()
   call mpi_comm_rank (mpi_comm_world,rank,err)
   call mpi_comm_size (mpi_comm_world,nps,err)
   if (nps.ne.np) then
-     print*,                                                                   &
+     print*,                                                                  &
      'processor number (',nps,') is not equal to pre-defined number (',np,')'
      call mpi_finalize(err)
      stop
@@ -246,7 +246,7 @@ subroutine read_data(u,itprint,filepath)
          read(unitin) u(:,:,:,:)
          close(unitin)
 
-         print'(i3,a,a)',rank,' read file:',trim(file1)
+         !print'(i3,a,a)',rank,' read file:',trim(file1)
 
          open(unit=unitin2,file=file2,status='unknown', access='stream')
          read(unitin2) npP, N_MPP, i_activeP, NBinsSEDMPP
@@ -262,8 +262,8 @@ subroutine read_data(u,itprint,filepath)
          end do
 
          close(unitin2)
-         print'(i3,a,a,a,i0,a)',rank,' read file:',trim(file2),' (got ',       &
-                                n_activeMP,' active LPs)'
+         !print'(i3,a,a,a,i0,a)',rank,' read file:',trim(file2),' (got ',       &
+         !                       n_activeMP,' active LPs)'
 
     end if
     call mpi_barrier(comm3d,err)
@@ -273,7 +273,7 @@ end subroutine read_data
 
 !=======================================================================
 !> @brief gets position of a cell
-!> @details Returns the position and spherical radius calculated with
+!> @details Returns the position of a cell center
 !! respect to  the center of the grid
 !> @param integer [in] i : cell index in the x direction
 !> @param integer [in] j : cell index in the y direction
@@ -288,9 +288,9 @@ end subroutine read_data
     integer, intent(in)  :: i, j, k
     real,    intent(out) :: x, y, z
 
-    x=(real(i+coords(0)*nx-nxtot/2) - 0.5)*dx
-    y=(real(j+coords(1)*ny-nytot/2) - 0.5)*dy
-    z=(real(k+coords(2)*nz-nztot/2) - 0.5)*dz
+    x=(real(i + coords(0)*nx - nxtot/2) - 0.5)*dx
+    y=(real(j + coords(1)*ny - nytot/2) - 0.5)*dy
+    z=(real(k + coords(2)*nz - nztot/2) - 0.5)*dz
 
   end subroutine getXYZ
 
@@ -368,9 +368,13 @@ subroutine rotation_x(theta,x,y,z,xn,yn,zn)
 !> @param real [in] thetaz : Rotation around Z
 subroutine fill_map(nxmap, nymap, nmaps, map, freq_obs,dxT , dyT,                       &
                    theta_x, theta_y, theta_z)
-  use globals,    only : u, Q_MP0, n_activeMP, dz
+  use globals,    only : u, Q_MP0, n_activeMP, dz, rank
   use parameters, only : xmax, ymax, zmax, Bsc, rsc
   use lmp_module, only : interpBD
+  !##########################################################################
+  !  DEBUG
+  !use utilities, only : isInDomain
+  !##########################################################################
   implicit none
   integer, intent(in)  :: nxmap,nymap,nmaps
   real,    intent(in)  :: freq_obs,dxT, dYT, theta_x, theta_y, theta_z
@@ -378,18 +382,29 @@ subroutine fill_map(nxmap, nymap, nmaps, map, freq_obs,dxT , dyT,               
   integer              :: i_mp, iobs, jobs, ind(3), i, j, k, l
   real                 :: x, xn, y, yn, z, zn
   real                 :: weights(8), Bx, By, Bz, Bxn, Byn, Bzn, SI, SQ, SU
+  !##########################################################################
+  !  DEBUG
+  !integer :: imin=1000, imax=0, jmin=1000, jmax = 0
+  !##########################################################################
 
   !  Clear target map
   map(:,:,:) = 0.0
 
+
   !  loop over al particles
   !  (there's no need to test if it's active, we just read active LPs)
   do i_mp=1, n_activeMP
+    !##########################################################################
+    !  DEBUG
+    !if(.not.isInDomain(Q_MP0(i_mp,1:3)) ) then
+    !  print*,'******** Particle not in local domain ******'
+    !end if
+    !##########################################################################
 
     !  unpack the positions (just for clarity) and recenter
-    x = Q_MP0(i_mp,1) - xmax/2.0
-    y = Q_MP0(i_mp,2) - ymax/2.0
-    z = Q_MP0(i_mp,3) - zmax/2.0
+    x = Q_MP0(i_mp,1) - real(xmax)/2.0
+    y = Q_MP0(i_mp,2) - real(ymax)/2.0
+    z = Q_MP0(i_mp,3) - real(zmax)/2.0
 
     !  Interpolate Bfield to each particle position (and scale it to Gauss)
     call interpBD(Q_MP0(i_mp,1:3),ind,weights)
@@ -419,11 +434,17 @@ subroutine fill_map(nxmap, nymap, nmaps, map, freq_obs,dxT , dyT,               
 
     ! This is the position on the target (centered)
     ! Integration is along Z
-    !iobs = int( ( xn + 0.5 )/dxT ) + nxmap/2
-    !jobs = int( ( yn + 0.5 )/dyT ) + nymap/2
-    iobs = int( xn/dxT ) + nxmap/2 + 1
-    jobs = int( yn/dyT ) + nymap/2 + 1
+    iobs = int( (xn + real(xmax)/2.0 ) /dxT ) + 1
+    jobs = int( (yn + real(ymax)/2.0 ) /dyT ) + 1
 
+    !##########################################################################
+    !  DEBUG
+    !imin = min(imin, iobs)
+    !jmin = min(jmin, jobs)
+
+    !imax = max(imax, iobs)
+    !jmax = max(jmax, jobs)
+    !##########################################################################
 
     !  Fill the maps
     if( (iobs >=1    ).and.(jobs >=1    ) .and.                                &
@@ -433,20 +454,26 @@ subroutine fill_map(nxmap, nymap, nmaps, map, freq_obs,dxT , dyT,               
       !  the integrals in eqs 37 and 41 of Vaidya et al. is achieved by
       !  summing all the elements in a map.
       !  Do only shocked particles
-      if (Q_MP0(i_mp, 11) /= 0) then
+      !if (Q_MP0(i_mp, 11) > 0.0) then
 
-        !call get_stokes(i_mp,freq_obs,Bx,By,SI,SQ,SU)
         call get_stokes(i_mp,freq_obs,Bxn,Byn,SI,SQ,SU)
 
         map(iobs,jobs,1)= map(iobs,jobs,1) + SI*dz*rsc
         map(iobs,jobs,2)= map(iobs,jobs,2) + SQ*dz*rsc
         map(iobs,jobs,3)= map(iobs,jobs,3) + SU*dz*rsc
 
-      end if
-
+      !end if
+    else
+      print'(a,i0,a,i0,a,i0,a,i0,a,3es12.3)','out of bounds ',rank,' ',&
+            i_mp,' ',iobs,' ',jobs,' ',Q_MP0(i_mp,1:3)
     end if
 
   end do
+
+  !##########################################################################
+  !  DEBUG
+  !print'(i2,a,4i4)',rank, ' bounds ', imin, imax, jmin, jmax
+  !##########################################################################
 
 end subroutine fill_map
 
@@ -481,6 +508,7 @@ subroutine get_stokes(i_mp,freq_obs,Bx,By,I,Q,U)
     if(isnan(x)) then
 
       print*, 'Invalid SED for particle', i_mp, ' ignoring it'
+      print*, 'Bperp:', Bperp, ' 1st Bin in SED :', x0, x1
       I = 0.0
       Q = 0.0
       U = 0.0
@@ -527,10 +555,6 @@ subroutine get_stokes(i_mp,freq_obs,Bx,By,I,Q,U)
   ! Eqs (49-50) ''
   Q = Jpol * (Bx**2-By**2 ) / Bperp**2
   U = Jpol * ( -2.0*Bx*By ) / Bperp**2
-
-  !I = 0.0
-  !Q = 0.0
-  !U = 0.0
 
 end subroutine get_stokes
 
@@ -605,15 +629,15 @@ end subroutine getBessels
 !> @param integer [in] nymap : Number of Y cells in target
 !> @param integer [in] nvmap : Number of maps (I,Q,U)
 !> @param real [in] map(nxmap,mymap) : Target map
-subroutine  write_stokes(itprint,filepath,nxmap,nymap,nmaps,map)
+subroutine  write_stokes(itprint,filepath,filebase,nxmap,nymap,nmaps,map)
   implicit none
   integer, intent(in) :: nxmap, nymap,nmaps,itprint
-  character (len=128), intent(in) :: filepath
+  character (len=128), intent(in) :: filepath, filebase
   real, intent(in) :: map(nxmap,nymap,nmaps)
   character (len=128) file1
   integer ::  unitout
 
-  write(file1,'(a,i3.3,a)')  trim(filepath)//'BIN/stokes-',itprint,'.bin'
+  write(file1,'(a,i3.3,a)')  trim(filepath)//'BIN/'//trim(filebase),itprint,'.bin'
   unitout=11
   open(unit=unitout,file=file1,status='unknown',access='stream')
 
@@ -644,7 +668,7 @@ program stokes_lp
 #endif
   implicit none
 
-  character (len=128) :: filepath
+  character (len=128) :: filepath, filebase
   integer :: err
   integer :: itprint
   !
@@ -670,13 +694,14 @@ program stokes_lp
   dxT= xmax/real(nxmap)
   dyT= dxT
 
-  ! chose output (fix later to input form screen)
-  !filepath=trim(outputpath)
-  filepath = '/storage2/esquivel/lmp_snr/M1_10.0/'
+  ! chose output (fix later to input form screen option)
+  !filepath = trim(outputpath)
+  filepath = '/storage2/esquivel/lmp_snr/M1/'
+  filebase = 'stokes-'
 
   freq_obs  =  1.40e9 !< frequency of observation (Hz)
 
-  loop_over_outputs : do itprint=0,15
+  loop_over_outputs : do itprint = 0,20
 
     !  read MHD and particles data
     call read_data(u,itprint,filepath)
@@ -702,7 +727,7 @@ program stokes_lp
 
     !  write result
     if (rank == master) then
-      call write_stokes(itprint,filepath,nxmap,nymap,nmaps,map1)
+      call write_stokes(itprint,filepath,filebase,nxmap,nymap,nmaps,map1)
     end if
 
   end do loop_over_outputs
