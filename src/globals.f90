@@ -54,6 +54,11 @@ module globals
   real :: dy  !< grid spacing in Y
   real :: dz  !< grid spacing in Z
 
+  !>Processor *physical* domain bounds (code units)
+  real :: xBounds(2)
+  real :: yBounds(2)
+  real :: zBounds(2)
+
   !> position of neighboring MPI blocks
   integer :: coords(0:2)
 
