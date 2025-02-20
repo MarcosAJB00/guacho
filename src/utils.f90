@@ -39,21 +39,16 @@ contains
   !> @param real [in] : 3D position WITH RESPECT TO A CORNER of the domain
   function isInDomain(pos)
 
-    use parameters, only : nx, ny, nz
-    use globals,    only : coords, dx, dy, dz
+    use parameters, only : xmax, ymax, zmax, MPI_NBX, MPI_NBY, MPI_NBZ
+    use globals,    only : coords, dx, dy, dz, xBounds, yBounds, zBounds
     implicit none
     logical          :: isInDomain
     real, intent(in) :: pos(3)
-    integer          :: ind(3)
-
-    ! shift to the local processor
-    ind(1) = int( pos(1)/dx ) - coords(0)*nx + 1
-    ind(2) = int( pos(2)/dy ) - coords(1)*ny + 1
-    ind(3) = int( pos(3)/dz ) - coords(2)*nz + 1
 
     !   False if not in physical domain
-    if ( ind(1) < 1  .or. ind(2)<1  .or. ind(3)<1 .or. &
-         ind(1) > nx .or. ind(2)>ny .or. ind(3)>nz ) then
+    if ( pos(1) < XBounds(1) .or. pos(1) >= XBounds(2) .or.  &
+         pos(2) < YBounds(1) .or. pos(2) >= YBounds(2) .or.  &
+         pos(3) < ZBounds(1) .or. pos(3) >= ZBounds(2) ) then
 
       isInDomain = .false.
 
@@ -89,6 +84,9 @@ contains
     if ( i < 1  .or. j < 1  .or. k < 1 .or.                                    &
          i > nx .or. j > ny .or. k > nz      ) then
 
+      print'(a)', '*** Error in isInShock, position out of domain ***'
+      if ( isInDomain(pos) ) print'(a)', 'Confirmed with isIndomain'
+
       return
 
     elseif ( shockF(i,j,k) == 1 ) then
@@ -115,6 +113,11 @@ contains
     integer          :: inWhichDomain
     real, intent(in) :: pos(3)
     integer          :: ind(0:2), err
+
+    if (any(pos < 0)) then
+      inWhichDomain = -1
+      return
+    end if
 
     ! get coords of rank
     ind(0) = int( pos(1)/ dx ) / nx
