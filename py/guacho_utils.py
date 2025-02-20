@@ -288,7 +288,7 @@ def minmax(q):
 '''
    reads tracer particles
 '''
-def read_lmp(nout,path='', base='lmp',trim=True, verbose=False):
+def read_lmp(nout,path='', base='lmp',trim=True, verbose=False, loadSpectra=True):
     #  read first output to determine N_MP and NP
     file_in = path+base+str(0).zfill(3)+'.'+str(nout).zfill(3)+'.bin'
     f = open(file_in,'rb')
@@ -322,8 +322,7 @@ def read_lmp(nout,path='', base='lmp',trim=True, verbose=False):
             ii -= 1
             id[ii] = ii
             x [ii], y [ii], z [ii] = struct.unpack('3d',f.read(24))
-
-            if (n_bins  > 0):
+            if ( n_bins  > 0):
               r[ii], th[ii] = struct.unpack('2d',f.read(16))
               for i_bin in range (n_bins):
                 SED[ii,i_bin,0]=struct.unpack('1d',f.read(8))[0]
@@ -341,7 +340,7 @@ def read_lmp(nout,path='', base='lmp',trim=True, verbose=False):
     x     = np.array( x[indices])
     y     = np.array( y[indices])
     z     = np.array( z[indices])
-    if (n_bins > 0):
+    if (loadSpectra and n_bins > 0):
         r     = np.array( r[indices])
         th    = np.array(th[indices])
         SED   = np.array(SED[indices,:,:])
@@ -356,11 +355,11 @@ def read_lmp(nout,path='', base='lmp',trim=True, verbose=False):
         n_mp  = np.size(np.where( id < 0 ))
         id    = id[n_mp::]
         array = array[n_mp::,:]
-        if (n_bins > 0):
+        if (loadSpectra and n_bins > 0):
             SED   = SED[n_mp::,:]
             P1    = P1 [n_mp::,:]
             P2    = P2 [n_mp::,:]
-    if (n_bins > 0):
+    if (loadSpectra and n_bins > 0):
         return id, array, SED, P1, P2
     else:
         return id, array
