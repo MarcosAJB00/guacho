@@ -53,6 +53,7 @@ SILO =
 # Additional USER modules to compile (they can only call constants,
 # parameters and globals)
 MODULES_USER =
+# snr.o
 
 #####################################################
 # There should be no need to modify below this line #
