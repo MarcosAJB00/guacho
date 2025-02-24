@@ -30,6 +30,13 @@ module lmp_module
 
   implicit none
 
+  !############################################################################
+  !  To report statistics of LMPs
+  integer :: movedRank   = 0
+  integer :: LeftDomain  = 0
+  integer :: Added       = 0
+  !############################################################################
+
 contains
 
   !================================================================
@@ -110,7 +117,7 @@ contains
     use parameters, only : N_MP
     use globals,    only : partID,Q_MP0, n_activeMP
     implicit none
-    integer, intent(in)  :: ID,ndata
+    integer, intent(in)  :: ID, ndata
     real,    intent(in)  :: Qdata(ndata)
     integer, intent(out) :: i_mp
 
@@ -143,13 +150,13 @@ contains
     integer :: i_mp, i, j, k, l, ind(3), i_add
     real    :: weights(8)
     integer :: dest, nLocSend, sendLoc(0:np-1), sendList(0:np-1,0:np-1),       &
-               dataLoc(N_MP), iS, iR, status(MPI_STATUS_SIZE), err
+               dataLoc(2,N_MP), iS, iR, status(MPI_STATUS_SIZE), err
     real    :: fullSend(2*NBinsSEDMP+28), fullRecv(2*NBinsSEDMP+28)
     !          above is 2*NBinsSEDMP of the SED, 12 of Q_MP0 and 2*8 from P_DSA
     real    :: normal(3), comp, thB1, thB2
 
     ! initialize send and recv lists
-    dataLoc(:)    =  0
+    dataLoc(:,:)    =  0
     sendLoc(:)    =  0
     sendlist(:,:) =  0
     nLocSend      =  0
@@ -227,12 +234,12 @@ contains
                 P_DSA(i_mp,1,3) = Q_MP0(i_mp,5)  !  vy
                 P_DSA(i_mp,1,4) = Q_MP0(i_mp,6)  !  vz
                 P_DSA(i_mp,1,5) = Q_MP0(i_mp,9)  !  P
+                !  Interpolate B field components
                 P_DSA(i_mp,1,6:8) = 0.
                 l = 1
                 do k= ind(3),ind(3)+1
                   do j=ind(2),ind(2)+1
                     do i=ind(1),ind(1)+1
-                      !  Interpolate B field components
                       P_DSA(i_mp,1,6)=P_DSA(i_mp,1,6)+primit(6,i,j,k)*weights(l)
                       P_DSA(i_mp,1,7)=P_DSA(i_mp,1,7)+primit(7,i,j,k)*weights(l)
                       P_DSA(i_mp,1,8)=P_DSA(i_mp,1,8)+primit(8,i,j,k)*weights(l)
@@ -248,13 +255,13 @@ contains
                 P_DSA(i_mp,2,2) = Q_MP0(i_mp,4)  !  vx
                 P_DSA(i_mp,2,3) = Q_MP0(i_mp,5)  !  vy
                 P_DSA(i_mp,2,4) = Q_MP0(i_mp,6)  !  vz
-                P_DSA(i_mp,2,5) = Q_MP0(i_mp,9)  !  P            .
+                P_DSA(i_mp,2,5) = Q_MP0(i_mp,9)  !  P
+                !  Interpolate B field components
                 P_DSA(i_mp,2,6:8) = 0.
                 l = 1
                 do k= ind(3),ind(3)+1
                   do j=ind(2),ind(2)+1
                     do i=ind(1),ind(1)+1
-                      !  Interpolate B field components
                       P_DSA(i_mp,2,6)=P_DSA(i_mp,2,6)+primit(6,i,j,k)*weights(l)
                       P_DSA(i_mp,2,7)=P_DSA(i_mp,2,7)+primit(7,i,j,k)*weights(l)
                       P_DSA(i_mp,2,8)=P_DSA(i_mp,2,8)+primit(8,i,j,k)*weights(l)
@@ -298,13 +305,13 @@ contains
                 P_DSA(i_mp,1,4) = Q_MP0(i_mp,6)  !  vz
                 P_DSA(i_mp,1,6:8) = 0.
                 Q_MP0(i_mp,9) = 0.
+                !  Interpolate Pressure and B field components
                 l = 1
                 do k= ind(3),ind(3)+1
                   do j=ind(2),ind(2)+1
                     do i=ind(1),ind(1)+1
-                      !  Interpolate Pressure
                       Q_MP0(i_mp,9) = Q_MP0(i_mp,9) + primit(5,i,j,k)*weights(l)
-                      !  Interpolate B field components
+
                       P_DSA(i_mp,1,6)=P_DSA(i_mp,1,6)+primit(6,i,j,k)*weights(l)
                       P_DSA(i_mp,1,7)=P_DSA(i_mp,1,7)+primit(7,i,j,k)*weights(l)
                       P_DSA(i_mp,1,8)=P_DSA(i_mp,1,8)+primit(8,i,j,k)*weights(l)
@@ -333,13 +340,13 @@ contains
 
         if (dest == -1 ) then
           call deactivateMP(i_mp)
+          LeftDomain = LeftDomain + 1
         else if (dest /= rank) then
             !  count for MPI exchange
             sendLoc(dest) = sendLoc(dest) + 1
             nLocSend      = nLocSend      + 1
-            dataLoc(nLocSend) = i_mp
-            !print'(i2,a,i4,a,i4)', rank, ' *** particle ',partID(i_mp),        &
-            !                     ' is going to ',DEST
+            dataLoc(1,nLocSend) = i_mp
+            dataLoc(2,nLocSend) = dest
         end if
 
       end if  ! if part was active
@@ -358,41 +365,52 @@ contains
             !print'(i0,a,i0,a,i0,a,i0)', rank,'-->', IR, ':',sendList(iR,iS),  &
             !                           '--', nLocSend
             do i=1,sendlist(iR,iS)
+
+              !  find correct particle to send
+              do j = 1, nLocSend
+                if (dataLoc(2,j) == iR) then
+                  !print'(i2,a,4(i6,x))', rank, ' index, dest ', j, dataLoc(:,j),partID(j)
+                  dataLoc(2,j)=-1
+                  exit
+                end if
+              end do
+
               !    if (iR /= -1) then
               if (lmp_distf) then
 
                 !print*,'>>>',rank,partID(dataLoc(i)),dataLoc(i)
                 !  pack info if we are solving the SED
-                fullSend( 1:12) = Q_MP0(dataLoc(i),1:12)
-                fullSend(13:20) = P_DSA(dataLoc(i),1,:)
-                fullSend(21:28) = P_DSA(dataLoc(i),2,:)
+                fullSend( 1:12) = Q_MP0(dataLoc(1,j),1:12)
+                fullSend(13:20) = P_DSA(dataLoc(1,j),1,:)
+                fullSend(21:28) = P_DSA(dataLoc(1,j),2,:)
                 fullSend(29:           28  +NBinsSEDMP)=                       &
-                                              MP_SED(1,1:NBinsSEDMP,dataLoc(i) )
+                                              MP_SED(1,1:NBinsSEDMP,dataLoc(1,j) )
                 fullSend(29+NBinsSEDMP:28+2*NBinsSEDMP)=                       &
-                                              MP_SED(2,1:NBinsSEDMP,dataLoc(i) )
+                                              MP_SED(2,1:NBinsSEDMP,dataLoc(1,j) )
                 !  send the whole thing
-                call mpi_send( fullSend ,28+2*NBinsSEDMP, mpi_real_kind ,IR,   &
-                               partID(dataLoc(i)), comm3d,err )
+                call mpi_send( fullSend ,28+2*NBinsSEDMP, mpi_real_kind ,      &
+                               iR, partID(dataLoc(1,j)), comm3d,err )
 
               else
 
                 !  in case we are only passing the particles and not their SED
-                call mpi_send( Q_MP0(dataLoc(i),1:6) , 6, mpi_real_kind ,IR,   &
-                               partID(dataLoc(i)), comm3d,err )
+                call mpi_send( Q_MP0(dataLoc(1,j),1:6) , 6, mpi_real_kind , &
+                               iR, partID(dataLoc(1,j)), comm3d,err )
 
               endif
 
               !  deactivate particle from current processor
-              call deactivateMP(dataLoc(i))
+              call deactivateMP(dataLoc(1,j))
+              movedRank = movedRank + 1
 
             end do
 
           end if
 
-
-          if(iR == rank) then
+          if( iR  == rank) then
 
             !print'(i0,a,i0,a,i0)', rank,'<--', IS, ':',sendList(iR,iS)
+
             do i=1,sendList(iR,iS)
 
               if (lmp_distf) then
@@ -403,7 +421,9 @@ contains
                               mpi_any_tag,comm3d, status, err)
 
                 !  add current particle in list and data in new processor
-                call addMP( status(MPI_TAG), 12, fullRecv(1:12), i_add )
+                call addMP( status(MPI_TAG), 12, fullRecv(1:12), i_add)
+                Added = Added + 1
+
                 P_DSA(i_add,1,1:8) = fullRecv(13:20)
                 P_DSA(i_add,2,1:8) = fullRecv(21:28)
                 ! unpack the SED
@@ -420,13 +440,25 @@ contains
                 !print*,'received successfuly', status(MPI_TAG)
 
                 !  add current particle in list and data in new processor
-                call addMP( status(MPI_TAG), 6, fullRecv(1:6), i_add )
+                call addMP( status(MPI_TAG), 6, fullRecv(1:6), i_add)
+                Added = Added + 1
 
               end if
 
               !  recalculate predictor step for newcomer
               Q_MP1(i_add,1:3) = Q_MP0(i_add,1:3) + dt_CFL*Q_MP0(i_add,4:6)
 
+              !####################################################################
+              !  DEBUG
+              if(.not.isInDomain(Q_MP1(i_add,1:3))) then
+                print'(a,i2,x,9f7.3)', &
+                  "** 1 ** What the hell I'm doing here ", rank, Q_MP1(i_add,1:3),&
+                  Q_MP0(i_add,1:3), fullRecv(1:3)
+                print'(a,i2)','QMP0 should be in:', inWhichDomain(Q_MP0(i_add,1:3))
+                print'(a,i2)','QMP1 should be in:', inWhichDomain(Q_MP1(i_add,1:3))
+                print'(a)', "I don't belong here..."
+              end if
+              !####################################################################
             end do
 
           end if
@@ -453,7 +485,7 @@ contains
     implicit none
     integer :: i_mp, i, j, k, l, ib, ind(3), i_add
     real    :: weights(8)
-    integer :: dest, nLocSend, dataLoc(N_mp),  sendLoc(0:np-1),                &
+    integer :: dest, nLocSend, dataLoc(2,N_mp),  sendLoc(0:np-1),                &
                sendList(0:np-1,0:np-1),status(MPI_STATUS_SIZE), err, iR, iS
     real    :: fullSend(2*NBinsSEDMP+5), fullRecv(2*NBinsSEDMP+5), dataIn(12)
     real    :: rhoNP1, vel1(3), pNP1, B_2Np1, BI, EI
@@ -467,7 +499,7 @@ contains
     real, parameter ::Cr0= ( 4.0*sigma_T )/(3.0* emass**2 * clight**3 )
 
     ! initialize send and recv lists
-    dataLoc(:)    =  0
+    dataLoc(:,:)    =  0
     sendLoc(:)    =  0
     sendList(:,:) =  0
     nLocSend      =  0
@@ -494,11 +526,11 @@ contains
           call interpBD(Q_MP1(i_mp,1:3),ind,weights)
           !  Interpolates the magnetic field to calculate beta.
           vel1(:) = 0.
+          !  interpolate velocity / density and B**2
           l = 1
           do k=ind(3),ind(3)+1
             do j=ind(2),ind(2)+1
               do i=ind(1),ind(1)+1
-                !  interpolate velocity / density and B**2
                 vel1(1) = vel1(1) + primit(2,i,j,k)*weights(l)
                 vel1(2) = vel1(2) + primit(3,i,j,k)*weights(l)
                 vel1(3) = vel1(3) + primit(4,i,j,k)*weights(l)
@@ -564,13 +596,14 @@ contains
 
           if (dest == -1) then
             call deactivateMP(i_mp)
-            !print'(a,i5,a,i2,a,i2)', 'particle ',i_mp ,' leaving ', rank, '->', dest
-            !print'(i4,3es13.5)', i_mp,  Q_MP0(i_mp,1:3)
+             LeftDomain = LeftDomain + 1
+
             else if (dest /= rank) then
               !  count for MPI exchange
               sendLoc(dest) = sendLoc(dest) + 1
               nLocSend      = nLocSend      + 1
-              dataLoc(nLocSend) = i_mp
+              dataLoc(1,nLocSend) = i_mp
+              dataLoc(2,nLocSend) = dest
             end if
 
         end if !isInDomain
@@ -589,31 +622,41 @@ contains
           if(iS == rank) then
             do i=1,sendlist(iR,iS)
 
+              !  find correct particle to send
+              do j = 1, nLocSend
+                if (dataLoc(2,j) == iR) then
+                  !print'(i2,a,4(i6,x))', rank, ' index, dest ', j, dataLoc(:,j),partID(j)
+                  dataLoc(2,j)=-1
+                  exit
+                end if
+              end do
+
               !      if (iR /= -1) then
               if (lmp_distf) then
 
                 !  pack info if we are solving the SED
-                fullSend(1:3) = Q_MP0(dataLoc(i),1:3)
-                fullSend(4:5) = Q_MP0(dataLoc(i),11:12)
+                fullSend(1:3) = Q_MP0(dataLoc(1,j),1:3)
+                fullSend(4:5) = Q_MP0(dataLoc(1,j),11:12)
                 fullSend(6:             5+NBinsSEDMP)=                         &
-                                              MP_SED(1,1:NBinsSEDMP,dataLoc(i) )
+                                              MP_SED(1,1:NBinsSEDMP,dataLoc(1,j) )
                 fullSend(6+NBinsSEDMP:5+2*NBinsSEDMP)=                         &
-                                              MP_SED(2,1:NBinsSEDMP,dataLoc(i) )
+                                              MP_SED(2,1:NBinsSEDMP,dataLoc(1,j) )
 
                 !  send the whole thing
                 call mpi_send( fullSend ,5+2*NBinsSEDMP, mpi_real_kind ,IR,    &
-                               partID(dataLoc(i)), comm3d,err )
+                               partID(dataLoc(1,j)), comm3d,err )
 
               else
 
                 !   if not solving the SED, send only X
-                call mpi_send( Q_MP0(dataLoc(i),1:3) , 3, mpi_real_kind ,IR,   &
-                               partID(dataLoc(i)), comm3d,err)
+                call mpi_send( Q_MP0(dataLoc(1,j),1:3) , 3, mpi_real_kind ,IR,   &
+                               partID(dataLoc(1,j)), comm3d,err)
 
               end if
 
               !  deactivate particle from current processor
-              call deactivateMP(dataLoc(i))
+              call deactivateMP(dataLoc(1,j))
+              movedRank = movedRank + 1
 
             end do
           end if
@@ -633,6 +676,7 @@ contains
                  dataIn(4:10) = 0.
                  dataIn(11:12) = fullRecv(4:5)
                  call addMP( status(MPI_TAG), 12, dataIn(1:12), i_add )
+                 Added = Added + 1
 
                  ! unpack the SED
                  MP_SED(1,1:NBinsSEDMP,i_add) =                                &
@@ -645,8 +689,20 @@ contains
                                mpi_any_tag, comm3d, status, err)
                 !  add current particle in list and data in new processor
                 call addMP( status(MPI_TAG), 3, fullRecv(1:3), i_add )
-
+                Added = Added + 1
               end if
+
+              !####################################################################
+              !  DEBUG
+              if(.not.isInDomain(Q_MP0(i_add,1:3))) then
+                print'(a,i2,x,9f7.3)', &
+                "** 2 ** What the hell I'm doing here "  , rank, Q_MP1(i_add,1:3),&
+                Q_MP0(i_add,1:3), fullRecv(1:3)
+                print'(a,i2)','QMP0 should be in:', inWhichDomain(Q_MP0(i_add,1:3))
+                print'(a,i2)','QMP1 should be in:', inWhichDomain(Q_MP1(i_add,1:3))
+                print'(a)', "I don't belong here..."
+              end if
+              !####################################################################
 
             end do
           end if
@@ -676,43 +732,45 @@ contains
     real,    intent(in)  :: pos(3)
     integer, intent(out) :: ind(3)
     real,    intent(out) :: weights(8)
-    real                 :: x0, y0, z0, remx, remy, remz, distx, disty, distz
+    real                 :: xp, yp, zp, xc, yc, zc, distx, disty, distz
 
-    ! get the index in the whole domain (integer part)
-    ! this is the particle position in "cell units" from 1 to nxmax (real)
-    x0 = pos(1)/dx
-    y0 = pos(2)/dy
-    z0 = pos(3)/dz
+    !  position in dx,y,z units (unit cube)
+    xp = pos(1)/ dx
+    yp = pos(2)/ dy
+    zp = pos(3)/ dz
 
-    !  get reminder
-    remx = x0 - int(x0)
-    remy = y0 - int(y0)
-    remz = z0 - int(z0)
+    !  compute position of cell center (in unit cube units)
+    xc = real( int( xp ) + 0.5 )
+    yc = real( int( yp ) + 0.5 )
+    zc = real( int( zp ) + 0.5 )
 
-    !  get bounds
-    if (remx < 0.5) then
-      ind(1)= int(x0) - coords(0)*nx
-    else
-      ind(1)= int(x0) - coords(0)*nx + 1
+    !  reference corners (if pos_p <= pos_c )
+    ind(1) = int( xp ) - coords(0)*nx
+    ind(2) = int( yp ) - coords(1)*nx
+    ind(3) = int( zp ) - coords(2)*nx
+
+    !  distance to cell center (unit cube units)
+    distx = xp - xc + 1.0
+    disty = yp - yc + 1.0
+    distz = zp - zc + 1.0
+
+    !  adjust if pos_p > pos_c
+    if ( xp > xc) then
+      ind(1) = ind(1) + 1
+      distx  = 1.0 - distx
     end if
 
-    if (remy < 0.5) then
-      ind(2)= int(y0)- coords(1)*ny
-    else
-      ind(2)= int(y0)- coords(1)*ny + 1
+    if ( yp > yc) then
+      ind(2) = ind(2) + 1
+      disty  = 1.0 - disty
     end if
 
-    if (remz < 0.5) then
-      ind(3)= int(z0)- coords(2)*nz
-    else
-      ind(3)= int(z0)- coords(2)*nz + 1
+    if ( zp > zc) then
+      ind(3) = ind(3) + 1
+      distz  = 1.0 - distz
     end if
 
-    !  get distances
-    distx = x0 - ( real(ind(1) + nx*coords(0) ) -0.5 )
-    disty = y0 - ( real(ind(2) + ny*coords(1) ) -0.5 )
-    distz = z0 - ( real(ind(3) + nz*coords(2) ) -0.5 )
-
+    !  return the corresponding weights (0-1)
     weights(1) = (1.-distx) * (1.-disty) * (1.-distz)
     weights(2) =     distx  * (1.-disty) * (1.-distz)
     weights(3) = (1.-distx) *     disty  * (1.-distz)
@@ -736,13 +794,19 @@ contains
   subroutine write_LMP(itprint)
 
     use parameters, only : outputpath, np, lmp_distf, N_MP, NBinsSEDMP,        &
-                           rhosc, rsc, vsc2
+                           rhosc, rsc, vsc2, master
     use utilities
-    use globals,    only : rank, Q_MP0, MP_SED, partID, P_DSA
+    use globals,    only : rank, Q_MP0, MP_SED, partID, P_DSA, comm3d,         &
+                           xBounds, yBounds, zBounds
+#ifdef MPIP
+  use mpi
+#endif
     implicit none
     integer, intent(in) :: itprint
     character(len = 128) :: fileout
     integer              :: unitout, i_mp, i_active
+    integer :: Added_tot, movedRank_tot, LeftDomain_tot, err, &
+               inDomain_tot, outDomain, outDomain_tot
 
 #ifdef MPIP
     write(fileout,'(a,i3.3,a,i3.3,a)')                                         &
@@ -756,9 +820,19 @@ contains
     open(unit=unitout,file=fileout,status='unknown',access='stream')
 
     i_active = 0
+    outDomain = 0
     do i_mp=1,N_MP
       if(partID(i_mp)/=0) then
-         if( isInDomain(Q_MP0(i_mp,1:3)) ) i_active = i_active + 1
+          if( isInDomain(Q_MP0(i_mp,1:3)) ) then
+            i_active = i_active + 1
+          else
+            outDomain = outDomain + 1
+            print'(a,6f7.3)', 'Out of domain with bounds', &
+             xBounds(:), yBounds(:), zBounds(:)
+            print'(a,3f10.6)','Particle position is: ', Q_MP0(i_mp, 1:3)
+            print'(a,2i8)','i_mp, partID(i_mp)',i_mp,  partID(i_mp)
+            print'(a)',''
+          end if
        end if
     end do
 
@@ -786,33 +860,57 @@ contains
 
     close(unitout)
 
+    !####################################################################
+    !   Report of particles that have crossed processor boundaries
+    call mpi_reduce(Added,Added_tot,1, mpi_integer, mpi_sum, master, &
+                    comm3d, err)
+
+    call mpi_reduce(movedRank,movedRank_tot,1, mpi_integer, mpi_sum, master, &
+                    comm3d, err)
+
+    call mpi_reduce(LeftDomain,LeftDomain_tot,1, mpi_integer, mpi_sum, master, &
+                    comm3d, err)
+
+     call mpi_reduce(i_active,inDomain_tot,1, mpi_integer, mpi_sum, master, &
+                     comm3d, err)
+
+      call mpi_reduce(outDomain, outDomain_tot,1, mpi_integer, mpi_sum, master, &
+                      comm3d, err)
+
+    if (rank == master) then
+
+      print'(a,i0)', 'Particles that have left domain : ', LeftDomain_tot
+      print'(a,i0)', 'Particles that moved ranks      : ', movedRank_tot
+      print'(a,i0)', 'Particles added after move      : ', Added_tot
+      print'(a,i0)', 'Active LMPs total count         : ', inDomain_tot
+      print'(a,i0)', 'Marked as active but out Domain : ', outDomain_tot
+
+    end if
+    !####################################################################
+
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !  tHIS IS ONLY FOR DEBUGGING PURPOSES
     !  repeat only for shocked PARTICLES
-    write(fileout,'(a,i3.3,a,i3.3,a)')  &
-    trim(outputpath)//'BIN/lmp-shocked-',rank,'.',itprint,'.bin'
-    unitout=rank+10
-
-    open(unit=unitout,file=fileout,status='unknown',access='stream')
-
-    i_active = 0
-    do i_mp=1,N_MP
-      if (partID(i_mp)/=0) then
-        if(isInShock(Q_MP0(i_mp,1:3)) ) i_active = i_active + 1
-      endif
-    end do
-    !print*, i_active, ' particles in shock'
-
-    write(unitout) np, N_MP, i_active, 0
-    do i_mp=1,N_MP
-      if (partID(i_mp) /=0) then
-        if (isInShock(Q_MP0(i_mp,1:3))) then
-          write(unitout) Q_MP0(i_mp,1:3)
-        end if
-      end if
-    end do
-
-    close(unitout)
+    !write(fileout,'(a,i3.3,a,i3.3,a)')  &
+    !trim(outputpath)//'BIN/lmp-shocked-',rank,'.',itprint,'.bin'
+    !unitout=rank+10
+    !open(unit=unitout,file=fileout,status='unknown',access='stream')
+    !i_active = 0
+    !do i_mp=1,N_MP
+    !  if (partID(i_mp)/=0) then
+    !    if(isInShock(Q_MP0(i_mp,1:3)) ) i_active = i_active + 1
+    !  endif
+    !end do
+    !!print*, i_active, ' particles in shock'
+    !write(unitout) np, N_MP, i_active, 0
+    !do i_mp=1,N_MP
+    !  if (partID(i_mp) /=0) then
+    !    if (isInShock(Q_MP0(i_mp,1:3))) then
+    !      write(unitout) Q_MP0(i_mp,1:3)
+    !    end if
+    !  end if
+    !end do
+    !close(unitout)
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   end subroutine write_LMP
