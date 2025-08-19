@@ -72,6 +72,10 @@ module constants
   integer, parameter :: EOS_H_RATE        = 3
   integer, parameter :: EOS_CHEM          = 4
 
+  !  Chenistry solver options
+  integer, parameter :: KIMNYA  = 1
+  integer, parameter :: CHEMEQ2 = 2
+
   !  Cooling Schemes
   integer, parameter :: COOL_NONE  = 0
   integer, parameter :: COOL_H     = 1
