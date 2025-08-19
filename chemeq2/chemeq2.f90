@@ -45,7 +45,8 @@ contains
 
     use parameters, only: neq, nx, ny,nz, tsc, n1_chem
     use globals,    only : u, primit, dt_CFL, coords, dx, dy, dz, rank
-
+    use difradHe,   only : phHI, phHeIS, phHeIM
+    use exoplanet,  only : Planet,Rbound
     implicit none
     real    :: dt_seconds, T, y(n)
     integer :: i, j, k
@@ -67,7 +68,7 @@ contains
           y(1:n) = primit(n1_chem: n1_chem + n -1 )
 
           !  advances the y's
-          call chemeq2solve( dt_seconds, y, T )
+          call chemeq2solve( dt_seconds, y, T, phHI, phHeIS, phHeIM )
 
         end do
       end do
@@ -80,10 +81,10 @@ contains
   !=======================================================================
   !> @brief Main driver for the module
   !> @details Advances the rate equations by a time increment dtg
-  subroutine chemeq2solve(dtg, y, T)
+  subroutine chemeq2solve(dtg, y, T, phHI, phHeIS, phHeIM)
 
     implicit none
-    real,    intent(in)    :: dtg, T
+    real,    intent(in)    :: dtg, T, phHI, phHeIS, phHeIM
     real,    intent(inout) :: y(n)
     integer :: i, gcount
     integer :: iter
@@ -111,7 +112,7 @@ contains
     end do
 
     !  obtain the derivatives of the initial values
-    !call gsub(y, q, d, tn + tstart)
+    call gsub(y, q, d, tn + tstart, T, phHI, phHeIS, phHeIM)
     gcount = gcount + 1
 
     ! Estimate the initial stepsize
@@ -192,7 +193,8 @@ contains
       end if
 
       ! evaluate derivatives for the corrector
-      ! call gsub(y, q, d, tn + tstart)
+      call gsub(y, q, d, tn + tstart, T, phHI, phHeIS, phHeIM)
+
       gcount = gcount + 1
       eps    = 1.0e-10
 
@@ -295,7 +297,7 @@ contains
 
     ! Successful step; get the source terms for the next step and continue back
     ! to 100
-    !call gsub(y, q, d, tn + tstart)
+    call gsub(y, q, d, tn + tstart, T, phHI, phHeIS, phHeIM)
     gcount = gcount + 1
     go to 100
 
