@@ -72,7 +72,7 @@
      yy  = ahI_246*y(iHI) / (y(iHI)*ahI_246 + y(iHeIS)*aheIS_246 + y(iHeIM)*aheIM_246)
      !probability  of photons that can ionize hydrogen from recombination to excited levels of helium
      p   = 0.67
-     
+
      dydt(iHI) = - rate(ichi)    * y(iHI)  * y(ie)                             &
                  + rate(iahii_b) * y(iHII) * y(ie)                             &
                  - rate(iphiHI)  * y(iHI)                                      &
@@ -89,7 +89,7 @@
                   - rate(iphiHeIS)* y(iHeIS )                                  &
                   - rate(icheIS)  * y(iHeIS)*y(ie)                             &
                   - rate(iceheIS) * y(iHI)*y(iHeII)                            &
-                  + rate(iceheII) * y(iHII)*y(iHeIS)                                  
+                  + rate(iceheII) * y(iHII)*y(iHeIS)
 
      dydt(iHeIM)= - rate(irheii)   * y(iHeIM)                                  &
                   - rate(iche31)   * y(iHI)* y(iHeIM)                          &
@@ -101,10 +101,10 @@
                   - rate(icheIM)   * y(ie)*y(iHeIM)
 
      !  "conservation" equations
-    
-     dydt(iHII) =  -y0(iH) + y(iHI) + y(iHII) 
 
-     dydt(iHeII)=  -y0(iHe) + y(iHeIS) + y(iHeIM) + y(iHeII) 
+     dydt(iHII) =  -y0(iH) + y(iHI) + y(iHII)
+
+     dydt(iHeII)=  -y0(iHe) + y(iHeIS) + y(iHeIM) + y(iHeII)
 
      dydt(ie)   =  -y(ie) + y(iHII) + y(iHeII)
 
@@ -122,7 +122,7 @@
      real (kind=8)              :: dydhI, dydheIS, dydheIM
      real (kind=8)              :: yy, p
      !cross section coeficitens value at 24.6 eV
-     real (kind=8),parameter    :: ahI_246=1.24e-18, aheIS_246=2.42e-19, aheIM_246=4.26e-19 
+     real (kind=8),parameter    :: ahI_246=1.24e-18, aheIS_246=2.42e-19, aheIM_246=4.26e-19
 
      !fraction of photons from helium recombination to ground state that can ionize hydrogen (ostebrook)
      yy  = ahI_246*y(iHI) / (y(iHI)*ahI_246 + y(iHeIS)*aheIS_246 + y(iHeIM)*aheIM_246)
@@ -140,9 +140,9 @@
 
     jacobian(iHI,iHI)      = - rate(ichi)*y(ie)                                &
                              - rate(iphiHI)                                    &
-                             - rate(iaheii_1)*y(ie)*y(iHeII)*dydhI             
+                             - rate(iaheii_1)*y(ie)*y(iHeII)*dydhI
     jacobian(iHI,iHII)     = + rate(iahii_b)*y(ie)
-    jacobian(iHI,iHeIS)    = - rate(iaheii_1)*y(ie)*y(iHeII)*dydheIS        
+    jacobian(iHI,iHeIS)    = - rate(iaheii_1)*y(ie)*y(iHeII)*dydheIS
     jacobian(iHI,iHeIM)    = - rate(iaheii_1)*y(ie)*y(iHeII)*dydheIM
     jacobian(iHI,iHeII)    = - rate(iaheii_1)*y(ie)*yy                         &
                              - rate(iaheii_b)*y(ie)*p
@@ -160,14 +160,14 @@
 
     jacobian(iHeIS,iHI)    = + rate(iaheii_1)*y(ie)*y(iHeII)*dydhI             &
                              + rate(iche31)*y(iHeIM)                           &
-                             - rate(iceheIS)*y(iHeII)                           
+                             - rate(iceheIS)*y(iHeII)
     jacobian(iHeIS,iHII)   =   rate(iceheII)*y(iHeIS)
     jacobian(iHeIS,iHeIS)  = - rate(iche13a)*y(ie)                             &
                              - rate(iphiHeIS)                                  &
                              - rate(icheIS)*y(ie)                              &
                              + rate(iaheii_1)*y(ie)*y(iHeII)*dydheIS           &
                              + rate(iceheII)*y(iHII)
-                             
+
     jacobian(iHeIS,iHeIM)  = + rate(irheii)                                    &
                              + rate(iche31)*y(iHI)                             &
                              + rate(iche31a)*y(ie)                             &
@@ -179,7 +179,7 @@
                              - rate(iceheIS)*y(iHI)
     jacobian(iHeIS,ie)     = - rate(iche13a)*y(iHeIS)                          &
                              + rate(iche31a)*y(iHeIM)                          &
-                             + rate(iche31b)*y(iHeIM)                          & 
+                             + rate(iche31b)*y(iHeIM)                          &
                              + rate(iaheii_a)*y(iHeII)                         &
                              - rate(iaheii_1)*y(iHeII)*(1 - yy)                &
                              - rate(icheIS) * y(iHeIS)
@@ -194,7 +194,7 @@
                              - rate(iphiHeIM)                                  &
                              - rate(icheIM) * y(ie)
     jacobian(iHeIM,iHeII)  = + rate(iaheiim_b)*y(ie)
-    jacobian(iHeIM,ie)     = + rate(iche13a)*y(iHeIS)                          & 
+    jacobian(iHeIM,ie)     = + rate(iche13a)*y(iHeIS)                          &
                              - rate(iche31a)*y(iHeIM)                          &
                              - rate(iche31b)*y(iHeIM)                          &
                              + rate(iaheiim_b)*y(iHeII)                        &
@@ -255,7 +255,7 @@
      rate(iaheiim_b) = 2.10e-13*(1.0e4/T)**0.778     !recombination of HeII to 2s3 case B [cm3/s]
 
      rate(irheii ) = 1.272e-4           !radiative transition He(23s) to He(11s)
-     
+
      !charge exchange (okclopick, lampon)
      rate(iceheIS) = 1.25e-15*(300./T)**(-0.25)
      rate(iceheII) = 1.75e-11*(300./T)**0.75*exp(-128000.0/T)
@@ -305,6 +305,115 @@
    end function check_no_conservation
 
    !=======================================================================
+
+subroutine qsub(y, q, d, time, T, phHI, phHeIS, phHeIM)
+
+    implicit none
+    real (kind=8), intent(in)  :: y(n_spec)
+    real (kind=8), intent(out) :: q(n_spec)     ! Producción
+    real (kind=8), intent(out) :: d(n_spec)     ! Tasa de pérdida
+    real (kind=8), intent(in)  :: time, T, phHI, phHeIS, phHeIM
+    real (kind=8), intent(in)  :: rate(n_reac)
+    real (kind=8)              :: yy, prob_p
+    !cross section coeficitens value at 24.6 eV
+    real (kind=8),parameter    :: ahI_246=1.24e-18, aheIS_246=2.42e-19, aheIM_246=4.26e-19
+
+    !fraction of photons from helium recombination to ground state that can ionize hydrogen (ostebrook)
+    yy  = ahI_246*y(iHI) / (y(iHI)*ahI_246 + y(iHeIS)*aheIS_246 + y(iHeIM)*aheIM_246)
+    !probability  of photons that can ionize hydrogen from recombination to excited levels of helium
+    prob_p   = 0.67
+
+    !  Obtain rates as function of current temperature
+    call get_reaction_rates(rate,T, phHI, phHeIS, phHeIM)
+
+    ! ================= HI =================
+    ! Producción
+    q(iHI) = + rate(iahii_b) * y(iHII) * y(ie)      &
+             + rate(iceheII) * y(iHII) *y(iHeIS)
+
+    ! Pérdida d(i) = p(i) * y(i)
+    d(iHI) = + rate(ichi)    * y(iHI)  * y(ie)      &
+             + rate(iphiHI)  * y(iHI)               &
+             + rate(iaheii_b)* y(iHeII)* y(ie)*p    &
+             + rate(iaheii_1)* y(iHeII)* y(ie)*yy   &
+             + rate(iceheIS) * y(iHI)  *y(iHeII)
+
+
+    ! ================= HII ==================
+    ! Producción
+    q(iHII) = + rate(ichi)    * y(iHI)  * y(ie)     &
+              + rate(iphiHI)  * y(iHI)              &
+              + rate(iaheii_b)* y(iHeII)* y(ie)*p   &
+              + rate(iaheii_1)* y(iHeII)* y(ie)*yy  &
+              + rate(iceheIS) * y(iHI)  *y(iHeII)
+
+    ! Pérdida
+    d(iHII) = + rate(iahii_b) * y(iHII) * y(ie)     &
+              + rate(iceheII) * y(iHII) *y(iHeIS)
+
+
+    ! ================= HeIS =================
+    ! Producción
+    q(iHeIS) = + rate(irheii)  * y(iHeIM)           &
+               + rate(iche31)  * y(iHI)* y(iHeIM)   &
+               + rate(iche31a) * y(ie )* y(iHeIM)   &
+               + rate(iche31b) * y(ie )* y(iHeIM)   &
+               + rate(iaheii_a)* y(ie )* y(iHeII)   &
+               + rate(iceheIS) * y(iHI)* y(iHeII)
+    ! Pérdida
+    d(iHeIS) = + rate(iche13a) * y(ie )* y(iHeIS)    &
+               + rate(iphiHeIS)* y(iHeIS )           &
+               + rate(icheIS)  * y(iHeIS)*y(ie)      &
+               + rate(iceheII) * y(iHII)*y(iHeIS)    &
+               + rate(iaheii_1)* y(ie )* y(iHeII) * (1.-yy)
+
+    ! ================ HeIM =================
+    ! Producción
+    q(iHeIM) = + rate(iche13a)  * y(ie )* y(iHeIS)   &
+               + rate(iaheiim_b)* y(ie )* y(iHeII)
+
+
+    ! Pérdida
+    d(iHeIM) = + rate(irheii)   * y(iHeIM)           &
+               + rate(iche31)   * y(iHI)* y(iHeIM)   &
+               + rate(iche31a)  * y(ie )* y(iHeIM)   &
+               + rate(iche31b)  * y(ie )* y(iHeIM)   &
+               + rate(iphiHeIM) * y(iHeIM )          &
+               + rate(icheIM)   * y(ie)*y(iHeIM)
+
+    ! ================ HeII =================
+    ! Producción
+    q(iHeII) = + rate(iaheii_1)* y(ie )* y(iHeII) * (1.-yy)  &
+               + rate(iphiHeIS)* y(iHeIS )                   &
+               + rate(icheIS)  * y(iHeIS)*y(ie)              &
+               + rate(iphiHeIM) * y(iHeIM )                  &
+               + rate(icheIM)   * y(ie)*y(iHeIM)             &
+               + rate(iceheII) * y(iHII)*y(iHeIS) !?? Estan bien estos?? Signo correcto en network ??
+
+    ! Pérdida
+    d(iHeIM) = + rate(iaheii_a)* y(ie )* y(iHeII)   &
+               + rate(iceheIS) * y(iHI)*y(iHeII) !?? Estan bien estos?? Signo correcto en network ??
+
+
+    ! ================= e ==================
+    ! Producción
+    q(ie) = + rate(ichi)    * y(iHI)  * y(ie)    &
+            + rate(iphiHI)  * y(iHI)             &
+            + rate(icheIS)  * y(iHeIS)*y(ie)     &
+            + rate(iphiHeIS)* y(iHeIS )          &
+            + rate(icheIM)   * y(ie)*y(iHeIM)    &
+            + rate(iphiHeIM) * y(iHeIM )
+
+    ! Pérdida
+    d(ie) = + rate(iaheii_a)* y(ie )* y(iHeII)   &
+            + rate(iahii_b) * y(iHII) * y(ie)
+
+
+    ! =======================================
+
+end subroutine qsub
+
+
 
 
  end module network
