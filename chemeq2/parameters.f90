@@ -77,6 +77,11 @@ module parameters
   !> EOS_CHEM          : Enables a full chemical network
   integer, parameter :: eq_of_state = EOS_CHEM
 
+  !> Chemistry solver to be used
+  !> CHEM_SOLVER = KIMNYA
+  !> CHEM_SOLVER = CHEMEQ2
+  integer, parameter :: chem_solver = CHEMEQ2
+
   !> Type of cooling (choose only one)
   !> COOL_NONE: Turns off the cooling
   !> COOL_H    : Single parametrized cooling function (ionization frac and T)
