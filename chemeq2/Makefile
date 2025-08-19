@@ -83,6 +83,7 @@ difrad.o \
 difradHe.o \
 hrate.o \
 chemistry.o \
+chemeq2.o \
 cooling_h.o \
 cooling_dmc.o	\
 cooling_chi.o \
