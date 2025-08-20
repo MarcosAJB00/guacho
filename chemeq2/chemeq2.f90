@@ -43,8 +43,9 @@ contains
   !> @details Advances the chemistry network with the chemeq2 algorithm
   subroutine update_chemeq2()
 
-    use parameters, only: neq, nx, ny,nz, tsc, n1_chem
+    use parameters, only : neq, nx, ny,nz, tsc, n1_chem
     use globals,    only : u, primit, dt_CFL, coords, dx, dy, dz, rank
+    use hydro_core, only : u2prim
     use difradHe,   only : phHI, phHeIS, phHeIM
     use exoplanet,  only : Planet,Rbound
     implicit none
@@ -65,10 +66,11 @@ contains
           call u2prim(u(:,i,j,k),primit(:,i,j,k),T)
 
           !  copy densities to y vector
-          y(1:n) = primit(n1_chem: n1_chem + n -1 )
+          y(1:n) = primit(n1_chem: n1_chem + n -1 , i, j, k)
 
           !  advances the y's
-          call chemeq2solve( dt_seconds, y, T, phHI, phHeIS, phHeIM )
+          call chemeq2solve( dt_seconds, y, T, phHI(i,j,k), &
+                                       phHeIS(i,j,k), phHeIM(i,j,k) )
 
         end do
       end do
@@ -86,10 +88,9 @@ contains
     implicit none
     real,    intent(in)    :: dtg, T, phHI, phHeIS, phHeIM
     real,    intent(inout) :: y(n)
-    integer :: i, gcount
+    integer :: i, gcount, rcount
     integer :: iter
     real    :: ts, tn, tfd
-    real    :: ymn(n)
     real    :: q(n), d(n), rtaus(n), y1(n)
     real    :: alpha, qs(n)
     real    :: ys(n), y0(n), rtau(n)
@@ -99,13 +100,13 @@ contains
     real    :: scrtch, ascr, eps
     real    :: rtaui, rtaub, qt, pb, rteps
     !! ym1, ym2 and stab are only used for the stability check on dt
-    !! real    :: ym1(n), ym2(n), stab
+    real    :: ym1(n), ym2(n), stab
 
     tn = 0.0
 
     !  store and limit to 'ymin' the initial values
     q(:)  = 0.0
-    p(:)  = 0.0
+    d(:)  = 0.0
     y0(:) = y(:)
     do i = 1, n
       y(i)  = max( y(i), ymin(i) )
@@ -180,8 +181,8 @@ contains
 
       !  limit decreasing functions to their minimum values
       do i = 1, n
-        !!ym2(i) = ym1(i)
-        !!ym1(i) = y(i)
+        ym2(i) = ym1(i)
+        ym1(i) = y(i)
         y(i) = max( ys(i)+ dt*scrarray(i), ymin(i) )
       end do
 
@@ -231,8 +232,8 @@ contains
       scr2 = max( ys(i) + dt*scrarray(i), 0.0 )
       scr1 = abs( scr2 - y1(i) )
       y(i) = max( scr2, ymin(i) )
-      !!ym2(i) = ym1(i)
-      !!ym1(i) = y(i)
+      ym2(i) = ym1(i)
+      ym1(i) = y(i)
 
       if( 0.25*(ys(i) + y(i)) >  ymin(i) ) then
         scr1 = scr1/y(i)
@@ -256,12 +257,12 @@ contains
     stab = 0.01
     if (itermax >= 3) then
       do i = 1, n
-        stab = max( stab, abs(y(i)-ym(i))/( abs(ym1(i)-ym2(i))+1.0e-20*y(i) ) )
+        stab = max( stab, abs(y(i)-ym1(i))/( abs(ym1(i)-ym2(i))+1.0e-20*y(i) ) )
       end do
     end if
 
-    if  (eps <= epsmax ) then
-    !!if ( (eps <= epsmax) .and. (stab <= 1) ) then
+    !!if  (eps <= epsmax ) then
+    if ( (eps <= epsmax) .and. (stab <= 1) ) then
       ! Valid step. Return if dtg has been reached
       if (dtg <= tn*tfd ) return
     else
@@ -276,12 +277,12 @@ contains
     rteps = 0.5*( rteps + eps/rteps )
 
     dto = dt
-    dt  = min( dt*(1.0/rteps + 0.005), tfd*( dtg-tn ) )
-    !!dt  = min( dt*(1.0/rteps + 0.05), tfd*( dtg-tn ), dto/(stab+0.001) )
+    !!dt  = min( dt*(1.0/rteps + 0.005), tfd*( dtg-tn ) )
+    dt  = min( dt*(1.0/rteps + 0.05), tfd*( dtg-tn ), dto/(stab+0.001) )
 
     ! begin new stwp if previous dot converged
-    if (eps > epsmax) then
-    !!if (eps > epsmax .or. stab > 1) then
+    !!if (eps > epsmax) then
+    if (eps > epsmax .or. stab > 1) then
       rcount = rcount + 1
 
       ! After an unsuccessful steo the initial timescales don't change, but dt
@@ -322,9 +323,10 @@ contains
   subroutine chemsp(epsmn, epsmx, dtmn, tnot, ymn, itermx)
 
     implicit none
-    real,    intent(in) :: epsmn, epsmx, dtmn, tnot, ymn(n)
-    integer, intent(in) :: itermx
-    integer :; i
+    real,    intent(in)    :: epsmn, epsmx, dtmn, tnot
+    real,    intent(inout) :: ymn(n)
+    integer, intent(in)    :: itermx
+    integer :: i
 
     epsmin = 1.0e02
     if (epsmn > 0.0) then
@@ -337,7 +339,7 @@ contains
     if (epsmx > 0) epsmax = epsmx
 
     dtmin = 1.0e-15
-    if (dtm > 0) dtmin = dtm
+    if (dtmn > 0) dtmin = dtmn
     tstart = tnot
 
     itermax = 1
