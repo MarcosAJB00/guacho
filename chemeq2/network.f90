@@ -313,7 +313,7 @@ subroutine qsub(y, q, d, time, T, phHI, phHeIS, phHeIM)
     real (kind=8), intent(out) :: q(n_spec)     ! Producción
     real (kind=8), intent(out) :: d(n_spec)     ! Tasa de pérdida
     real (kind=8), intent(in)  :: time, T, phHI, phHeIS, phHeIM
-    real (kind=8), intent(in)  :: rate(n_reac)
+    real (kind=8),             :: rate(n_reac)
     real (kind=8)              :: yy, prob_p
     !cross section coeficitens value at 24.6 eV
     real (kind=8),parameter    :: ahI_246=1.24e-18, aheIS_246=2.42e-19, aheIM_246=4.26e-19
