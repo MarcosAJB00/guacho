@@ -421,6 +421,7 @@ program lyman_alpha_tau
   use mpi
 #endif
   implicit none
+
   character (len=128) :: filepath
   integer :: err
   integer :: itprint

@@ -50,6 +50,7 @@ contains
     integer, parameter :: nxm1=nx-1 ,nxp1=nx+1
     integer, parameter :: nym1=ny-1, nyp1=ny+1
     integer, parameter :: nzm1=nz-1, nzp1=nz+1
+    
 #ifdef MPIP
     integer :: status(MPI_STATUS_SIZE), err
     real, dimension(neq,1,0:nyp1,0:nzp1)::sendr,recvr,sendl,recvl

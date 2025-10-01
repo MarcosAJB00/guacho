@@ -619,6 +619,7 @@ contains
     logical, intent(out) :: dump_flag
     real              :: dtp
     real              :: c
+
 #ifdef BFIELD
     real              :: cx, cy, cz
 #endif
