@@ -4,7 +4,7 @@
 !> @author A. Esquivel, M. Schneiter, C. Villareal D'Angelo
 !> @date 4/May/2016
 
-! Copyright (c) 2016 Guacho Co-OP
+! Copyright (c) 2020 Guacho Co-Op
 !
 ! This file is part of Guacho-3D.
 !
@@ -43,15 +43,15 @@ contains
 !=======================================================================
 
 !> @brief Gets position in the grid
-!> @details Gets the position and spherical radius calculated with
-!! respect to the center of the grid
+!> @details Gets the position (of the cell center) and spherical radius
+!> calculated with respect to the center of the grid
 !> @param integer [in] i : index in the X direction
 !> @param integer [in] j : index in the Y direction
 !> @param integer [in] k : index in the Z direction
-!> @param real [out] x : X position form the center of the grid (code units)
-!> @param real [out] y : Y position form the center of the grid (code units)
-!> @param real [out] z : Z position form the center of the grid (code units)
-!> @param real [out] r : Spherical radius form the center of the grid
+!> @param real [out] x : X position from the center of the grid (code units)
+!> @param real [out] y : Y position from the center of the grid (code units)
+!> @param real [out] z : Z position from the center of the grid (code units)
+!> @param real [out] r : Spherical radius from the center of the grid
 !! (code units)
 
 subroutine getpos(i,j,k,x,y,z,r)
@@ -60,9 +60,9 @@ subroutine getpos(i,j,k,x,y,z,r)
   integer, intent(in)  :: i, j, k
   real,    intent(out) :: x, y, z, r
 
-  x=(real(i+coords(0)*nx-nxtot/2)-0.5)*dx
-  y=(real(j+coords(1)*ny-nytot/2)-0.5)*dy
-  z=(real(k+coords(2)*nz-nztot/2)-0.5)*dz
+  x=( real(i+coords(0)*nx-nxtot/2) - 0.5 )*dx
+  y=( real(j+coords(1)*ny-nytot/2) - 0.5 )*dy
+  z=( real(k+coords(2)*nz-nztot/2) - 0.5 )*dz
 
   r  = sqrt(x**2 +y**2 +z**2 )
 
