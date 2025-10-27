@@ -306,14 +306,14 @@
 
    !=======================================================================
 
-subroutine qsub(y, q, d, time, T, phHI, phHeIS, phHeIM)
+subroutine gsub(y, q, d, time, T, phHI, phHeIS, phHeIM)
 
     implicit none
     real (kind=8), intent(in)  :: y(n_spec)
     real (kind=8), intent(out) :: q(n_spec)     ! Producción
     real (kind=8), intent(out) :: d(n_spec)     ! Tasa de pérdida
     real (kind=8), intent(in)  :: time, T, phHI, phHeIS, phHeIM
-    real (kind=8),             :: rate(n_reac)
+    real (kind=8)              :: rate(n_reac)
     real (kind=8)              :: yy, prob_p
     !cross section coeficitens value at 24.6 eV
     real (kind=8),parameter    :: ahI_246=1.24e-18, aheIS_246=2.42e-19, aheIM_246=4.26e-19
@@ -332,19 +332,19 @@ subroutine qsub(y, q, d, time, T, phHI, phHeIS, phHeIM)
              + rate(iceheII) * y(iHII) *y(iHeIS)
 
     ! Pérdida d(i) = p(i) * y(i)
-    d(iHI) = + rate(ichi)    * y(iHI)  * y(ie)      &
-             + rate(iphiHI)  * y(iHI)               &
-             + rate(iaheii_b)* y(iHeII)* y(ie)*p    &
-             + rate(iaheii_1)* y(iHeII)* y(ie)*yy   &
+    d(iHI) = + rate(ichi)    * y(iHI)  * y(ie)           &
+             + rate(iphiHI)  * y(iHI)                    &
+             + rate(iaheii_b)* y(iHeII)* y(ie)*prob_p    &
+             + rate(iaheii_1)* y(iHeII)* y(ie)*yy        &
              + rate(iceheIS) * y(iHI)  *y(iHeII)
 
 
     ! ================= HII ==================
     ! Producción
-    q(iHII) = + rate(ichi)    * y(iHI)  * y(ie)     &
-              + rate(iphiHI)  * y(iHI)              &
-              + rate(iaheii_b)* y(iHeII)* y(ie)*p   &
-              + rate(iaheii_1)* y(iHeII)* y(ie)*yy  &
+    q(iHII) = + rate(ichi)    * y(iHI)  * y(ie)         &
+              + rate(iphiHI)  * y(iHI)                  &
+              + rate(iaheii_b)* y(iHeII)* y(ie)*prob_p  &
+              + rate(iaheii_1)* y(iHeII)* y(ie)*yy      &
               + rate(iceheIS) * y(iHI)  *y(iHeII)
 
     ! Pérdida
@@ -411,7 +411,7 @@ subroutine qsub(y, q, d, time, T, phHI, phHeIS, phHeIM)
 
     ! =======================================
 
-end subroutine qsub
+end subroutine gsub
 
 
 
