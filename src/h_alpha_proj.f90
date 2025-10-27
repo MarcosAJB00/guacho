@@ -412,6 +412,7 @@ program h_alpha_proj
   use mpi
 #endif
   implicit none
+
   character (len=128) :: pathin, fileout, fileout_rg
   character :: rg_flag
   integer :: err
@@ -503,3 +504,6 @@ program h_alpha_proj
   stop
 
 end program h_alpha_proj
+
+!=======================================================================
+

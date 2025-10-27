@@ -26,6 +26,7 @@
 !> @n The location of the tables is assumed to be in
 !! src/cool_lib/coolingDMC.tab, it is read by init subroutine
 
+
 module cooling_dmc
 
   implicit none
@@ -71,6 +72,7 @@ contains
        end do
        close(unit=10)
      endif
+
 #ifdef MPIP
     call mpi_bcast(cooltab_dmc,82,mpi_real8,0,mpi_comm_world,err)
 #endif
@@ -150,3 +152,5 @@ contains
   !======================================================================
 
 end module cooling_dmc
+!======================================================================
+

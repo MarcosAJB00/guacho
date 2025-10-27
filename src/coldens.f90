@@ -223,7 +223,6 @@ contains
   !> @param real [out], y : final y position in the grid
   !> @param real [out], x : final z position in the grid
   subroutine rotation_x(theta,x,y,z,xn,yn,zn)
-
     implicit none
     real, intent(in ) :: theta, x, y, z
     reaL, intent(out) :: xn, yn, zn
@@ -244,7 +243,6 @@ contains
   !> @param real [out], y : final y position in the grid
   !> @param real [out], x : final z position in the grid
   subroutine rotation_y(theta,x,y,z,xn,yn,zn)
-
     implicit none
     real, intent(in ) :: theta, x, y, z
     real, intent(out) :: xn, yn, zn
@@ -387,6 +385,7 @@ contains
 
     write(unit) "*******************************************************",lf
     write(unit) achar(255),lf
+
 #ifdef DOUBLEP
     write(unit) 'd'
 #else
@@ -535,3 +534,6 @@ program coldens
   stop
 
 end program coldens
+
+!=======================================================================
+

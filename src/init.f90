@@ -511,6 +511,7 @@ contains
           trim(outputpath)//'BIN/points',itprint,'.bin'
     unitin=10
 #endif
+
       open(unit=unitin,file=file1,status='old', access='stream' )
 
       !   discard the ascii header
@@ -536,6 +537,7 @@ contains
 
       if(enable_lmp) then
         !   Read Lagrangian Particles info if they are enabled
+
 #ifdef MPIP
         write(file1,'(a,i3.3,a,i3.3,a)')                                       &
               trim(outputpath)//'BIN/lmp',rank,'.',itprint,'.bin'
