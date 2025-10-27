@@ -79,8 +79,8 @@ module parameters
 
   !> Chemistry solver to be used
   !> CHEM_SOLVER = KIMNYA
-  !> CHEM_SOLVER = CHEMEQ2
-  integer, parameter :: chem_solver = CHEMEQ2
+  !> CHEM_SOLVER = CHEMEQ_2
+  integer, parameter :: chem_solver = CHEMEQ_2
 
   !> Type of cooling (choose only one)
   !> COOL_NONE: Turns off the cooling
