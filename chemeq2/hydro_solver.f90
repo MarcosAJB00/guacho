@@ -130,7 +130,7 @@ contains
   !! @n The variables are taken from the globals module.
   subroutine tstep()
     use parameters, only : tsc, riemann_solver, eq_of_state, dif_rad, cooling, &
-                           th_cond, master
+                           th_cond, master, chem_solver
     use constants
     use globals
     use hydro_core,   only : calcprim
@@ -140,6 +140,7 @@ contains
 #endif
     use boundaries
     use chemistry,    only : update_chem
+    use chemeq2,      only : update_chemeq2
     use cooling_H
     use cooling_DMC
     use cooling_CHI
@@ -208,8 +209,11 @@ contains
 
     !  update the chemistry network
     !  the primitives in the physical domain are upated
-    if (eq_of_state == EOS_CHEM) call update_chem()
+    if (eq_of_state == EOS_CHEM) then
+      if(  chem_solver == KIMYA   ) call update_chem()
 
+      if( chem_solver == CHEMEQ_2 ) call update_chemeq2()
+    end if
     !-------------------------
     !   apply cooling/heating terms
     select case(cooling)
