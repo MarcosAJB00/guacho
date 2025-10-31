@@ -67,7 +67,7 @@ contains
 
           !  copy densities to y vector
           y(1:n) = primit(n1_chem: n1_chem + n -1 , i, j, k)
-
+           !que onda mariooo
           !  advances the y's
           call chemeq2solve( dt_seconds, y, T, phHI(i,j,k), &
                                        phHeIS(i,j,k), phHeIM(i,j,k) )
