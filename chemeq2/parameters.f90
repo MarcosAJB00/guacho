@@ -79,8 +79,8 @@ module parameters
 
   !> Chemistry solver to be used
   !> CHEM_SOLVER = KIMNYA
-  !> CHEM_SOLVER = CHEMEQ2
-  integer, parameter :: chem_solver = CHEMEQ2
+  !> CHEM_SOLVER = CHEMEQ_2
+  integer, parameter :: chem_solver = CHEMEQ_2
 
   !> Type of cooling (choose only one)
   !> COOL_NONE: Turns off the cooling
@@ -159,24 +159,24 @@ module parameters
   integer, parameter :: npas=0        !< num. of passive scalars
 #endif
 
-  integer, parameter :: nxtot=1032      !< Total grid size in X
-  integer, parameter :: nytot=258      !< Total grid size in Y
-  integer, parameter :: nztot=1032      !< Total grid size in Z
+  integer, parameter :: nxtot=800      !< Total grid size in X
+  integer, parameter :: nytot=800      !< Total grid size in Y
+  integer, parameter :: nztot=800      !< Total grid size in Z
 
 #ifdef MPIP
   !   mpi array of processors
-  integer, parameter :: MPI_NBX=6     !< number of MPI blocks in X0º
-  integer, parameter :: MPI_NBY=2     !< number of MPI blocks in Y
-  integer, parameter :: MPI_NBZ=6     !< number of MPI blocks in Z
+  integer, parameter :: MPI_NBX=5     !< number of MPI blocks in X0º
+  integer, parameter :: MPI_NBY=5     !< number of MPI blocks in Y
+  integer, parameter :: MPI_NBZ=5     !< number of MPI blocks in Z
   !> total number of MPI processes
   integer, parameter :: np=MPI_NBX*MPI_NBY*MPI_NBZ
 #endif
 
   !  set box size
   real, parameter :: xmax=1.0          !< grid extent in X (code units)
-  real, parameter :: ymax=0.25         !< grid extent in Y (code units)
+  real, parameter :: ymax=1.0         !< grid extent in Y (code units)
   real, parameter :: zmax=1.0          !< grid extent in Z (code units)
-  real, parameter :: xphys=50*(1.98*Rjup) !< grid extent in X (physical units, cgs)
+  real, parameter :: xphys=40*(0.4466*Rjup) !< grid extent in X (physical units, cgs)
 
   !  For the equation of state
   real, parameter :: cv=1.5            !< Specific heat at constant volume (/R)
@@ -195,15 +195,15 @@ module parameters
   real, parameter :: bsc = sqrt(4.0*pi*Psc) !< magnetic field scaling
 
   !> Maximum integration time
-  real, parameter :: tmax    = 6.0*day/tsc
+  real, parameter :: tmax    = 12.0*day/tsc
   !> interval between consecutive outputs
-  real, parameter :: dtprint = 0.05*day/tsc
+  real, parameter :: dtprint = 0.004*day/tsc
   real, parameter :: cfl=0.4         !< Courant-Friedrichs-Lewy number
   real, parameter :: eta=0.001       !< artificial viscosity
 
   !> Warm start flag, if true restarts the code from previous output
-  logical, parameter :: iwarm=.true.
-  integer            :: itprint0 = 100        !< number of output to do warm start
+  logical, parameter :: iwarm=.false.
+  integer            :: itprint0 = 16        !< number of output to do warm start
   real, parameter    :: time_0   = 100.0*0.05*day/tsc !< starting time
 
   !*********************************************************************

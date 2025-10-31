@@ -69,6 +69,7 @@ program guacho
   integer :: itprint
   real    :: tprint
   logical :: dump_out = .false.
+  logical :: checkpoint = .false.
 
   !   initializes mpi, and global variables
   call initmain(tprint, itprint)
@@ -114,6 +115,17 @@ program guacho
 
     !   advances the HD/MHD solution
     call tstep()
+
+    inquire(FILE="checkpoint",exist=checkpoint)
+    if(checkpoint)then
+       call write_output(999)
+       if (rank == 0) then
+          print'(a,es15.7)', &
+          '****************** wrote checkpoint *************** time: ', time
+       end if
+       call system('rm -rf checkpoint')
+       checkpoint = .false.
+    end if
 
     !  if lmp enabled compute corrector for particle positions
     if(enable_lmp) then

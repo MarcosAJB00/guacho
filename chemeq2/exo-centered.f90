@@ -76,23 +76,23 @@ subroutine init_exo()
   implicit none
 
   !----------------STAR PARAMETERS ------------------
-  star%mass      = 1.132*msun!1.119*msun
-  star%radius    = 1.367*rsun!1.155*rsun
+  star%mass      = 0.86*msun!1.119*msun
+  star%radius    = 0.76*rsun!1.155*rsun
 !  star%amdot     = 0.0 !1.3E-16*msun/yr    ! Stellar Mass Loss rate (g s^-1)
-  star%WT        = 1.0e6 !1.35e6            ! Stellar temperature (K)
+  star%WT        = 1.4e6 !1.35e6            ! Stellar temperature (K)
   !star%WR        = 8.16*star%radius        ! wind launching radius
-  star%WV        = 130.0e5                  ! Stellar wind velocity (cm/s)
-  star%WD        = 1.3e-19                  ! Stellar wind density  (g cm^-3)
+  star%WV        = 550.0e5                  ! Stellar wind velocity (cm/s)
+  star%WD        = 5.5e-21                  ! Stellar wind density  (g cm^-3)
   star%bfield    = 0.0                      ! Stellar magnetic field (g)
-  star%S0H       = 1.2e15*10.0              ! soft_euv lyman weinn flux
-  star%S0He1     = 7.3e14*10.0              ! hard_euv (1/cm2/s)
-  star%S0He3     = 2.6e18*0.1               ! soft_euv **(mid-UV)**
+  star%S0H       = 1.3e14                   ! soft_euv lyman weinn flux
+  star%S0He1     = 2.6e13                   ! hard_euv (1/cm2/s)
+  star%S0He3     = 4.1e15                   ! soft_euv **(mid-UV)**
   !----------------PLANET PARAMETERS------------------
-  planet%mass    = 0.685*mjup
+  planet%mass    = 0.0787*mjup
   planet%amdot   = 0.0                       ! Planetary Mass Loss rate (g/s)
-  planet%rho     = 5e-14
-  planet%radius  = 1.98*rjup!1.359*Rjup
-  planet%temp    = 1.8370E3                   ! Planets temperature
+  planet%rho     = 3.6e-15
+  planet%radius  = 0.4466*rjup!1.359*Rjup
+  planet%temp    = 1.0e3                    ! Planets temperature
 !  planet%WT      = 0.0                       ! Planets temperature
 !  planet%WR      = 0.0                       ! Planetary wind radius (cm)
 !  planet%WV      = 0.0                       ! Planets wind velocity (cm/s)
@@ -107,8 +107,8 @@ subroutine init_exo()
   fHeII_s  = 1.0          ! HeII fraction for solar wind
 
   !ORBITAL PARAMETERS
-  rorb = 0.03397*AU
-  torb = 2.15000820*day
+  rorb = 0.0532*AU
+  torb = 4.887802443*day
 
   cs2 = gamma*Rg/1.*planet%temp
   Kconst = planet%rho**(1.0 - gamma)*cs2
@@ -454,28 +454,28 @@ subroutine boundary_exo(u,time)
 
         endif
 
-!         if((global_i <= 1).AND.(u(2,i,j,k) < 0))then
-!           set_cell = .true.
-!
-!           velx = 0.0
-!           vely = 0.0!u(3,i,j,k)*vsc
-!           velz = 0.0!u(4,i,j,k)*vsc
-!
-!           dens = rho_out*1.0E-5
-!           energy = energy_c1*rho_out**gamma /rhosc/vsc2
-!
-!           neutral_h   = (1. - fHII_s) * nHt * dens/rhosc     !neutral density of H [g/cm3]
-!           ion_h       = fHII_s * nHt * dens /rhosc
-!
-!           neutral_heS = (1. - fHeII_s) * nHet * dens/rhosc /(1+alpha)  !neutral density of He singlet [g/cm3]
-!           neutral_heM = alpha*neutral_heS     ! neutral density of He triplet [g/cm3]
-!           ion_he      = fHeII_s * nHet * dens/rhosc
-!           electrons   = ion_h + ion_he
-!
-!           passive     = -1000*dens/rhosc
-!           dens        = dens/rhosc
-!
-!         endif
+         if((global_i <= 1).AND.(u(2,i,j,k) > 0))then
+           set_cell = .true.
+
+           velx = 0.0
+           vely = 0.0!u(3,i,j,k)*vsc
+           velz = 0.0!u(4,i,j,k)*vsc
+
+           dens = rho_out*1.0E-5
+           energy = energy_c1*rho_out**gamma /rhosc/vsc2
+
+           neutral_h   = (1. - fHII_s) * nHt * dens/rhosc     !neutral density of H [g/cm3]
+           ion_h       = fHII_s * nHt * dens /rhosc
+
+           neutral_heS = (1. - fHeII_s) * nHet * dens/rhosc /(1+alpha)  !neutral density of He singlet [g/cm3]
+           neutral_heM = alpha*neutral_heS     ! neutral density of He triplet [g/cm3]
+           ion_he      = fHeII_s * nHet * dens/rhosc
+           electrons   = ion_h + ion_he
+
+           passive     = -1000*dens/rhosc
+           dens        = dens/rhosc
+
+         endif
 
 !         if((global_i >= nxtot).AND.(u(2,i,j,k) > 0))then
 !           set_cell = .true.
@@ -500,74 +500,74 @@ subroutine boundary_exo(u,time)
 !
 !         endif
 !
-!         if((global_j <= 1).AND.(u(3,i,j,k) < 0))then
-!           set_cell = .true.
-!
-!           velx = 0.0!u(2,i,j,k)*vsc
-!           vely = 0.0
-!           velz = 0.0!u(4,i,j,k)*vsc
-!
-!           dens = rho_out*1.0E-5
-!           energy = energy_c1*rho_out**gamma /rhosc/vsc2
-!
-!           neutral_h   = (1. - fHII_s) * nHt * dens/rhosc     !neutral density of H [g/cm3]
-!           ion_h       = fHII_s * nHt * dens /rhosc
-!
-!           neutral_heS = (1. - fHeII_s) * nHet * dens/rhosc /(1+alpha)  !neutral density of He singlet [g/cm3]
-!           neutral_heM = alpha*neutral_heS     ! neutral density of He triplet [g/cm3]
-!           ion_he      = fHeII_s * nHet * dens/rhosc
-!           electrons   = ion_h + ion_he
-!
-!           passive     = -1000*dens/rhosc
-!           dens        = dens/rhosc
-!
-!         endif
-!
-!         if((global_j >= nytot).AND.(u(3,i,j,k) > 0))then
-!           set_cell = .true.
-!
-!           velx = 0.0!u(2,i,j,k)*vsc
-!           vely = 0.0
-!           velz = 0.0!u(4,i,j,k)*vsc
-!
-!           dens = rho_out*1.0E-5
-!           energy = energy_c1*rho_out**gamma /rhosc/vsc2
-!
-!           neutral_h   = (1. - fHII_s) * nHt * dens/rhosc     !neutral density of H [g/cm3]
-!           ion_h       = fHII_s * nHt * dens /rhosc
-!
-!           neutral_heS = (1. - fHeII_s) * nHet * dens/rhosc /(1+alpha)  !neutral density of He singlet [g/cm3]
-!           neutral_heM = alpha*neutral_heS     ! neutral density of He triplet [g/cm3]
-!           ion_he      = fHeII_s * nHet * dens/rhosc
-!           electrons   = ion_h + ion_he
-!
-!           passive     = -1000*dens/rhosc
-!           dens        = dens/rhosc
-!
-!         endif
+         if((global_j <= 1).AND.(u(3,i,j,k) > 0))then
+           set_cell = .true.
 
-!         if((global_k >= nztot).AND.(u(4,i,j,k) > 0))then
-!           set_cell = .true.
-!
-!           velx = 0.0!u(2,i,j,k)*vsc
-!           vely = 0.0!u(3,i,j,k)*vsc
-!           velz = 0.0
-!
-!           dens = rho_out*1.0E-5
-!           energy = energy_c1*rho_out**gamma /rhosc/vsc2
-!
-!           neutral_h   = (1. - fHII_s) * nHt * dens/rhosc     !neutral density of H [g/cm3]
-!           ion_h       = fHII_s * nHt * dens /rhosc
-!
-!           neutral_heS = (1. - fHeII_s) * nHet * dens/rhosc /(1+alpha)  !neutral density of He singlet [g/cm3]
-!           neutral_heM = alpha*neutral_heS     ! neutral density of He triplet [g/cm3]
-!           ion_he      = fHeII_s * nHet * dens/rhosc
-!           electrons   = ion_h + ion_he
-!
-!           passive     = -1000*dens/rhosc
-!           dens        = dens/rhosc
-!
-!         endif
+           velx = 0.0!u(2,i,j,k)*vsc
+           vely = 0.0
+           velz = 0.0!u(4,i,j,k)*vsc
+
+           dens = rho_out*1.0E-5
+           energy = energy_c1*rho_out**gamma /rhosc/vsc2
+
+           neutral_h   = (1. - fHII_s) * nHt * dens/rhosc     !neutral density of H [g/cm3]
+           ion_h       = fHII_s * nHt * dens /rhosc
+
+           neutral_heS = (1. - fHeII_s) * nHet * dens/rhosc /(1+alpha)  !neutral density of He singlet [g/cm3]
+           neutral_heM = alpha*neutral_heS     ! neutral density of He triplet [g/cm3]
+           ion_he      = fHeII_s * nHet * dens/rhosc
+           electrons   = ion_h + ion_he
+
+           passive     = -1000*dens/rhosc
+           dens        = dens/rhosc
+
+         endif
+
+         if((global_j >= nytot).AND.(u(3,i,j,k) < 0))then
+           set_cell = .true.
+
+           velx = 0.0!u(2,i,j,k)*vsc
+           vely = 0.0
+           velz = 0.0!u(4,i,j,k)*vsc
+
+           dens = rho_out*1.0E-5
+           energy = energy_c1*rho_out**gamma /rhosc/vsc2
+
+           neutral_h   = (1. - fHII_s) * nHt * dens/rhosc     !neutral density of H [g/cm3]
+           ion_h       = fHII_s * nHt * dens /rhosc
+
+           neutral_heS = (1. - fHeII_s) * nHet * dens/rhosc /(1+alpha)  !neutral density of He singlet [g/cm3]
+           neutral_heM = alpha*neutral_heS     ! neutral density of He triplet [g/cm3]
+           ion_he      = fHeII_s * nHet * dens/rhosc
+           electrons   = ion_h + ion_he
+
+           passive     = -1000*dens/rhosc
+           dens        = dens/rhosc
+
+         endif
+
+         if((global_k >= nztot).AND.(u(4,i,j,k) < 0))then
+           set_cell = .true.
+
+           velx = 0.0!u(2,i,j,k)*vsc
+           vely = 0.0!u(3,i,j,k)*vsc
+           velz = 0.0
+
+           dens = rho_out*1.0E-5
+           energy = energy_c1*rho_out**gamma /rhosc/vsc2
+
+           neutral_h   = (1. - fHII_s) * nHt * dens/rhosc     !neutral density of H [g/cm3]
+           ion_h       = fHII_s * nHt * dens /rhosc
+
+           neutral_heS = (1. - fHeII_s) * nHet * dens/rhosc /(1+alpha)  !neutral density of He singlet [g/cm3]
+           neutral_heM = alpha*neutral_heS     ! neutral density of He triplet [g/cm3]
+           ion_he      = fHeII_s * nHet * dens/rhosc
+           electrons   = ion_h + ion_he
+
+           passive     = -1000*dens/rhosc
+           dens        = dens/rhosc
+
+         endif
 !
 !         if((global_k <= 1).AND.(u(4,i,j,k) < 0))then
 !           set_cell = .true.
@@ -591,7 +591,7 @@ subroutine boundary_exo(u,time)
 !           dens        = dens/rhosc
 !
 !         endif
-       !Stellar Wind at z=0
+       !Stellar Wind at z= 0 and x=nxtot
         xp = x - barycenter%x
         yp = y - barycenter%y
         zp = z - barycenter%z
@@ -601,7 +601,7 @@ subroutine boundary_exo(u,time)
         zs = z - star%z
         rs = sqrt(xs**2+ys**2+zs**2)
         
-       if(global_k <= 1) then
+       if(global_k <= 1 .or. global_i >= nxtot) then
           set_cell = .true.
         
           velx = star%WV*xs/rs -omegap*zp

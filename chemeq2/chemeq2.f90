@@ -34,7 +34,7 @@ module chemeq2
   implicit none
   real    :: epsmin, sqreps, epscl, epsmax, dtmin, tstart
   integer :: itermax
-  real    :: ymin(n)
+  real    :: ymin(n)! = 0.0 !Esto lo puse yo, VER!!
 
 contains
 
@@ -47,13 +47,16 @@ contains
     use globals,    only : u, primit, dt_CFL, coords, dx, dy, dz, rank
     use hydro_core, only : u2prim
     use difradHe,   only : phHI, phHeIS, phHeIM
-    use exoplanet,  only : Planet,Rbound
+!    use exoplanet,  only : Planet,Rbound
     implicit none
-    real    :: dt_seconds, T, y(n)
+    real    :: dt_seconds, T, y(n),tnot
     integer :: i, j, k
 
     dt_seconds = dt_CFL*tsc
-
+    tnot=0.0
+    call chemsp(epsmin, epsmax, dtmin,tnot, ymin, itermax) !agregada por el Ale
+!    print*, 'epsmin=',epsmin,'epsmax=',epsmax,'dtmin=',dtmin,'tnot=',tnot,'tstart=',tstart,'ymin=',ymin,'itermax=',itermax
+    !stop
     !  loop over the entire domain
     do k=1,nz
       do j=1,ny
@@ -67,11 +70,18 @@ contains
 
           !  copy densities to y vector
           y(1:n) = primit(n1_chem: n1_chem + n -1 , i, j, k)
-
+!          print*, 'y1(i)=',y(:)
           !  advances the y's
           call chemeq2solve( dt_seconds, y, T, phHI(i,j,k), &
                                        phHeIS(i,j,k), phHeIM(i,j,k) )
-
+          
+          ! update densities
+          primit(n1_chem: n1_chem + n -1, i, j, k) = y(1:n)
+ 
+          u(n1_chem: n1_chem + n -1, i, j, k) = y(1:n)
+!          print*, 'y2(i)=', y(:)
+!          stop
+          !u(n1_chem: n1_chem + n -1, i, j, k) = primit(n1_chem: n1_chem + n -1, i, j, k)
         end do
       end do
     end do
@@ -88,7 +98,7 @@ contains
     implicit none
     real,    intent(in)    :: dtg, T, phHI, phHeIS, phHeIM
     real,    intent(inout) :: y(n)
-    integer :: i, gcount, rcount
+    integer :: i, gcount=0, rcount=0 !inicializados por mi
     integer :: iter
     real    :: ts, tn, tfd
     real    :: q(n), d(n), rtaus(n), y1(n)
@@ -96,14 +106,17 @@ contains
     real    :: ys(n), y0(n), rtau(n)
     real    :: scr1, scr2, scrarray(n)
     real    :: dt, dto
-    real    :: rswitch
+!    real    :: rswitch  !no se usa aca
     real    :: scrtch, ascr, eps
     real    :: rtaui, rtaub, qt, pb, rteps
     !! ym1, ym2 and stab are only used for the stability check on dt
-    real    :: ym1(n), ym2(n), stab
-
+    real    :: ym1(n), ym2(n), stab !NO SABEMOS Q ES
+!    integer :: contador_1 = 0!, contador_2 = 0
+    
+    ym1(:)=0.0
+    ym2(:)=0.0
     tn = 0.0
-
+    tfd = 1.000008 !inicializado por mi
     !  store and limit to 'ymin' the initial values
     q(:)  = 0.0
     d(:)  = 0.0
@@ -115,6 +128,7 @@ contains
     !  obtain the derivatives of the initial values
     call gsub(y, q, d, tn + tstart, T, phHI, phHeIS, phHeIM)
     gcount = gcount + 1
+
 
     ! Estimate the initial stepsize
     ! Strongly increasing functions (q >> d assumed here) use a stepsize
@@ -130,10 +144,10 @@ contains
       ascr   = abs( q(i) )
       scr2   = sign( 1.0/y(i), 0.1*epsmin*ascr - d(i) )
       scr1   = scr2 * d(i)
-      scrtch = max( scr1, -abs( ascr - d(i) ) * scr2, scrtch )
+      scrtch = max( scr1, -abs( ascr - d(i) ) * scr2, scrtch ) !max(+-d/y,+-(q-d)/y,scrtch)
     end do
     dt = min( sqreps/scrtch, dtg )
-
+!    print*, 'dt inicial = ',dt
     ! The starting values are stored
     100 continue
     ts = tn
@@ -177,6 +191,8 @@ contains
     end do
 
     iter = 1
+!    ym2(:) = 0.0 !inicializada por mi
+!    ym1(:) = 0.0 !        "
     do while(iter <= itermax)
 
       !  limit decreasing functions to their minimum values
@@ -238,17 +254,28 @@ contains
       if( 0.25*(ys(i) + y(i)) >  ymin(i) ) then
         scr1 = scr1/y(i)
         eps  = max(0.5*(scr1+min(abs(q(i)-d(i))/(q(i)+d(i)+1e-30),scr1)),eps)
+!        print*, "eps= ",eps, "i=",i,"scr1=",scr1,"q(i)=",q(i),"d(i)=",d(i)
+!        if (eps*epscl>= epsmax .and. y(i) .eq. ymin(i)) then
+!          print*, "eps*epscl= ",eps*epscl, "i=",i,"scr1=",scr1,"q(i)=",q(i),"d(i)=",d(i),"y(i):",y(i)
+!        end if
+!        contador_1 = contador_1 + 1
       end if
+
+!      contador_2 =contador_2+1
+!      print*, "eps*epscl= ",eps*epscl, "contador_2:",contador_2,"contador_1:",contador_1
+
     end do
 
     eps = eps*epscl
+!    print*, "eps= ",eps, "contador_2:",contador_2,"contador_1:",contador_1
 
     !  print out diagnostics if stepsize becomes to small
     if (dt < dtmin + 1.0e-16*tn) then
       print*, 'chemeq error; stepsize too small'
 
-      ! call error diagnostic routine
-      ! call chemer()
+      ! call error diagnostic routine     
+      call chemer(y, n, dt, tn, dtmin, epsmin, q, d, rtau, ys, y0, ymin)
+!      stop
     end if
 
     ! Check for convergence
@@ -263,11 +290,16 @@ contains
 
     !!if  (eps <= epsmax ) then
     if ( (eps <= epsmax) .and. (stab <= 1) ) then
-      ! Valid step. Return if dtg has been reached
-      if (dtg <= tn*tfd ) return
+!      print*,' El eps fue menor al epsmax, eps= ',eps,'tn: ',tn
+      ! Valid step. Return if dtg has been reached|     
+      if (dtg <= tn*tfd ) then
+        !print*, 'Termino,tn > dtg'
+        return
+      end if
     else
       ! Invalid step; reset tn to ts
       tn =ts
+!      print*, 'Invalid step; reset tn to ts; tn = ',tn,'dtg=',dtg,'dt=',dt,'eps=',eps
     end if
 
     ! Perform stepsize modifications
@@ -278,13 +310,16 @@ contains
 
     dto = dt
     !!dt  = min( dt*(1.0/rteps + 0.005), tfd*( dtg-tn ) )
-    dt  = min( dt*(1.0/rteps + 0.05), tfd*( dtg-tn ), dto/(stab+0.001) )
+    dt  = min( dt*(1.0/rteps + 0.005), tfd*( dtg-tn ), dto/(stab+0.001) ) !aca antes tenia 0.05 en vez de 0.005
 
     ! begin new stwp if previous dot converged
     !!if (eps > epsmax) then
     if (eps > epsmax .or. stab > 1) then
       rcount = rcount + 1
-
+      !print*, 'Reajustes del paso en chemeq2: ',rcount,'dt= ',dt 
+      if (mod(rcount, 100000) .eq. 0) then
+        print *, "Paso rechazado N°", rcount, " dt=", dt, " eps=", eps, "tn=", tn,"dtg=",dtg
+      end if
       ! After an unsuccessful steo the initial timescales don't change, but dt
       ! doesm requiring rtaus to be scaled by the ratio of the new and old
       ! timesteps
@@ -300,6 +335,10 @@ contains
     ! to 100
     call gsub(y, q, d, tn + tstart, T, phHI, phHeIS, phHeIM)
     gcount = gcount + 1
+    !print*,'Llamados al gsub: ', gcount,'tn: ',tn
+!    if (mod(gcount/(3*(800**3)), 10000) .eq. 0) then
+!      print *, "Integracion quimica N°", rcount, " dt=", dt, "tn=", tn,"dtg=",dtg
+!    end if
     go to 100
 
     return
@@ -328,14 +367,14 @@ contains
     integer, intent(in)    :: itermx
     integer :: i
 
-    epsmin = 1.0e02
+    epsmin = 1.0e-2 !antes estaba en 1.0e02
     if (epsmn > 0.0) then
       epsmin = epsmn
       sqreps = 5.0 * sqrt(epsmin)
     end if
 
     epscl  = 1.0/epsmin
-    epsmax = 10.0
+    epsmax = 1000.0
     if (epsmx > 0) epsmax = epsmx
 
     dtmin = 1.0e-15
@@ -346,10 +385,45 @@ contains
     if (itermx > 0) itermax = itermx
 
     do i=1,n
-      ymn(i) = 1.0e-20
+      ymin(i) = 1.0e-4 !antes estaba ymn en vez de ymin
       if ( ymn(i) > 0.0 ) ymin(i) = ymn(i)
     end do
 
   end subroutine chemsp
+
   !=======================================================================
+  !> @brief Diagnóstico de error para el integrador químico CHEMEQ2
+  !> @details Imprime un conjunto parcial de variables internas cuando ocurre
+  !>          un error atribuible a CHEMEQ2 (por ejemplo, paso de tiempo muy pequeño).
+  subroutine chemer(y, n, dt, tn, dtmin, epsmin, q, d, rtau, ys, y0, ymin)
+    
+    implicit none
+    integer, intent(in) :: n
+    real, intent(in)    :: y(n), q(n), d(n), rtau(n), ys(n), y0(n), ymin(n)
+    real, intent(in)    :: dt, tn, dtmin, epsmin
+    integer :: i
+    real :: dtc
+
+    print *, '==============================================================='
+    print *, ' CHEMEQ2 ERROR DIAGNOSTIC'
+    print *, '---------------------------------------------------------------'
+    print *, ' Time step info:'
+    print *, '  dt = ', dt, '   tn = ', tn, '   dtmin = ', dtmin, '  epsmin = ', epsmin
+    print *, '---------------------------------------------------------------'
+    print *, 'i', 'q(i)', 'd(i)', 'y(i)', 'rtau(i)', 'dtc', 'q-d', 'ys(i)', 'y0(i)', 'ymin(i)'
+    print *, '---------------------------------------------------------------'
+
+    do i = 1, n
+      dtc = epsmin * y(i) / (abs(q(i) - d(i)) + 1.0e-30)
+      write(*,*) i, q(i), d(i), y(i), rtau(i), dtc, &
+                                 q(i)-d(i), ys(i), y0(i), ymin(i)
+    end do
+
+    print *, '==============================================================='
+    print *, ' END OF CHEMEQ2 DIAGNOSTIC'
+    print *, '==============================================================='
+
+  end subroutine chemer
+  !=======================================================================
+
 end module chemeq2

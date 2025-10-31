@@ -281,7 +281,7 @@ end subroutine rotation_z
 !> @param real [in] thetay : Rotation around Y
 !> @param real [in] thetaz : Rotation around Z
 subroutine fill_map(nxmap,nymap,nvmap,vmin,vmax,u,map_ha,map_lya,dxT,dyT,&
-                   theta_x,theta_y,theta_z,n2p_matrix)!,n2_save)
+                   theta_x,theta_y,theta_z)!,n2p_matrix)!,n2_save)
 
   use constants, only : clight
   use parameters, only : nxmin, nxmax, nymin, nymax, nzmin, nzmax, &
@@ -295,7 +295,7 @@ subroutine fill_map(nxmap,nymap,nvmap,vmin,vmax,u,map_ha,map_lya,dxT,dyT,&
   real, intent(in)  :: vmin, vmax
   real, intent(inout)  :: u(neq,nxmin:nxmax,nymin:nymax, nzmin:nzmax)
   real , intent(in) :: dxT, dyT, theta_x, theta_y, theta_z
-  real, intent(in)  :: n2p_matrix(200,200)
+!  real, intent(in)  :: n2p_matrix(200,200)
 !  real, intent(inout)  :: n2_save(nxtot,nytot,nztot )
   real, intent(out) :: map_ha(nxmap,nymap,nvmap)
   real, intent(out) :: map_lya(nxmap,nymap,nvmap)
@@ -356,7 +356,7 @@ subroutine fill_map(nxmap,nymap,nvmap,vmin,vmax,u,map_ha,map_lya,dxT,dyT,&
 
               ! call subroutine to interpolate the value in the n2 level
               !call calc_pop((prim(1)-prim(neqdyn+1)),T,n2p_matrix,n2pp)
-              call calc_pop(prim(neqdyn+6),T,n2p_matrix,n2pp)  ! Sep 4th, 2024
+!              call calc_pop(prim(neqdyn+6),T,n2p_matrix,n2pp)  ! Sep 4th, 2024
 
               !n2_save(i+coords(0)*nx,j+coords(1)*ny,k+coords(2)*nz)=n2pp*prim(neqdyn+1)
 
@@ -364,14 +364,14 @@ subroutine fill_map(nxmap,nymap,nvmap,vmin,vmax,u,map_ha,map_lya,dxT,dyT,&
               !call phigauss(T, -vzn,vmin,vmax,nvmap,profile)
               !call phivoigt(T, -vzn,vmin,vmax,nvmap,profile,lambdaHA, 4.4101e7)
                !if (prim(neqdyn+2)<0) then
-                    call phivoigt(T, -vzn,vmin,vmax,nvmap,profile,lambdaHA, 4.4101e7)
-                    map_ha(iobs,jobs,:)= map_ha(iobs,jobs,:) + &
-                                 dz*rsc*n2pp*prim(neqdyn+1)*sigmaHA*lambdaHA*profile(:)
+!                    call phivoigt(T, -vzn,vmin,vmax,nvmap,profile,lambdaHA, 4.4101e7)
+!                    map_ha(iobs,jobs,:)= map_ha(iobs,jobs,:) + &
+!                                 dz*rsc*n2pp*prim(neqdyn+1)*sigmaHA*lambdaHA*profile(:)
 
                     call phivoigt(T, -vzn,vmin,vmax,nvmap,profile,lambdaLA, 6.27e8)
                     map_lya(iobs,jobs,:)= map_lya(iobs,jobs,:) + &
-                                 dz*rsc*(1.-n2pp)*prim(neqdyn+1)*sigmaLA*lambdaLA*profile(:)
-                                 !dz*rsc*prim(neqdyn+1)*sigmaLA*lambdaLA*profile(:)
+!                                 dz*rsc*(1.-n2pp)*prim(neqdyn+1)*sigmaLA*lambdaLA*profile(:)
+                                 dz*rsc*prim(neqdyn+1)*sigmaLA*lambdaLA*profile(:)
                !end if
             end if
           end if
@@ -406,14 +406,14 @@ subroutine  write_maps(itprint,i,filepath,nxmap,nymap,nvmap,map_ha,map_lya)
   character (len=128) file2
   integer ::  unitout
 
-  write(file1,'(a,i3.3,a,i3.3,a)')  trim(filepath)//'hlines/HA_tau-',itprint,'_',i,'.bin'
-  unitout=11
-  open(unit=unitout,file=file1,status='unknown',form='unformatted', &
-       convert='LITTLE_ENDIAN')
+!  write(file1,'(a,i3.3,a,i3.3,a)')  trim(filepath)//'hlines/HA_tau-',itprint,'_',i,'.bin'
+!  unitout=11
+!  open(unit=unitout,file=file1,status='unknown',form='unformatted', &
+!       convert='LITTLE_ENDIAN')
 
-  write (unitout) map_ha(:,:,:)
-  close(11)
-  print'(a,a)'," wrote file:",trim(file1)
+!  write (unitout) map_ha(:,:,:)
+!  close(11)
+!  print'(a,a)'," wrote file:",trim(file1)
 
   write(file2,'(a,i3.3,a,i3.3,a)')  trim(filepath)//'hlines/LA_tau-',itprint,'_',i,'.bin'
   open(unit=12,file=file2,status='unknown',form='unformatted', &
@@ -639,12 +639,12 @@ program hlines_tau_map
   integer :: isnap_x,isnap_y,isnap_z
 
   ! read table of values generated with chianti
-  call read_tab(te_array,ne_array,n2p_matrix)
+!  call read_tab(te_array,ne_array,n2p_matrix)
 
   nxmap = nxtot !100 !nxtot/2 + 100
   nymap = nytot !100 ! nytot
 
-  allocate(map_ha(nxmap,nymap,nvmap) ,map1(nxmap,nymap,nvmap))
+!  allocate(map_ha(nxmap,nymap,nvmap) ,map1(nxmap,nymap,nvmap))
   allocate(map_lya(nxmap,nymap,nvmap),map2(nxmap,nymap,nvmap))
 
   ! initializes program
@@ -681,8 +681,8 @@ program hlines_tau_map
    ! end if
 
     !  resets map
-    map_ha(:,:,:)  = 0.0
-    map1(:,:,:)    = 0.0
+!    map_ha(:,:,:)  = 0.0
+!    map1(:,:,:)    = 0.0
     map_lya(:,:,:) = 0.0
     map2(:,:,:)    = 0.0
 
@@ -704,13 +704,13 @@ program hlines_tau_map
         !end if
 
         !  add info to the map
-        call fill_map(nxmap,nymap,nvmap,vmin,vmax,u,map_ha,map_lya,dxT,dyT,theta_x,theta_y,theta_z,n2p_matrix)!, n2_save )
+        call fill_map(nxmap,nymap,nvmap,vmin,vmax,u,map_ha,map_lya,dxT,dyT,theta_x,theta_y,theta_z)!,n2p_matrix)!, n2_save )
        end do
      end do
     end do
 
     !  sum all the partial sums
-     call mpi_reduce(map_ha,map1,nxmap*nymap*nvmap, mpi_real_kind, mpi_sum, master, comm3d, err)
+!     call mpi_reduce(map_ha,map1,nxmap*nymap*nvmap, mpi_real_kind, mpi_sum, master, comm3d, err)
      call mpi_reduce(map_lya,map2,nxmap*nymap*nvmap, mpi_real_kind, mpi_sum, master, comm3d, err)
 
     !  write result

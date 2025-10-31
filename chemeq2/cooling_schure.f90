@@ -192,7 +192,7 @@ end subroutine read_table_schure
 
     implicit none
     real                 :: T , dens
-    real, parameter      :: Tmin=1000.
+    real, parameter      :: Tmin=1000., T_floor=10.0 
     real (kind=8)        :: Lambda0, emtauC, gain, loss
     integer              :: i, j, k, iiHI, iiHeIS, iiHeIM, iiHII, iiHeII, iie
     real                 :: dt_seconds, ch_factor
@@ -228,9 +228,9 @@ end subroutine read_table_schure
               !   get the primitives (and T)
               call u2prim(u(:,i,j,k),primit(:,i,j,k),T)
 
-              if(T < 100) then
-                print*, 'Temperature, T=', T, primit(1,i,j,k), primit(5,i,j,k)
-              end if
+              !if(T < T_floor) then
+                !print*, 'Temperature, T=', T, primit(1,i,j,k), primit(5,i,j,k)
+              !end if
 
               nh    = u(iiHI   ,i,j,k)
               nhII  = u(iiHII  ,i,j,k)
@@ -239,54 +239,59 @@ end subroutine read_table_schure
               nheII = u(iiHeII ,i,j,k)
               ne    = u(iie    ,i,j,k)
 
-              if(T > Tmin) then
+              
+              if (T > T_floor) then
 
-                !Lambda0=get_lambda(T)  ![erg cm3 /s]
-                call cooling_rates_cen(T,ne,nh,nhII,nhe,nheM,nheII,loss) ! [erg/cm3/s]
-
-                if (dif_radHe) then
-                  !  energy per photo ionization from solar_spectrum.py (in erg)
-                  gain = phHI(i,j,k)   * u(iiHI   ,i,j,k) * 3.8e-12              & ! [erg/cm3/s]
-                       + phHeIS(i,j,k) * u(iiHeIS ,i,j,k) * 1.9e-11              &
-                       + phHeIM(i,j,k) * u(iiHeIM ,i,j,k) * 9.6e-13
-
+                 ! --- gain ---
+                 if (dif_radHe) then                    
+                    gain =  phHI(i,j,k)   * u(iiHI   ,i,j,k) * 4.9e-12  &
+                          + phHeIS(i,j,k) * u(iiHeIS ,i,j,k) * 1.9e-11  &
+                          + phHeIM(i,j,k) * u(iiHeIM ,i,j,k) * 8.2e-13
                 else
-
-                  gain=0.0
-
+                    gain = 0.0
                 end if
 
-                dens=primit(1,i,j,k)
+                dens = primit(1,i,j,k)
+                
+                ! --- cooling ---
+                if (T > Tmin) then
+                    call cooling_rates_cen(T,ne,nh,nhII,nhe,nheM,nheII,loss)
+                ! --- factor de cambio ---
+                    Lambda0 = loss / (dens**2)
+                    emtauC = exp(-2.0*dt_seconds*dens*Lambda0/(3.0*Kb*T))
+                    ch_factor = (gain/(dens**2*Lambda0))*(1.0-emtauC) + emtauC
+                    
+                else !sin loss
+                    !loss = 1e-30
+                    ch_factor = (2*gain*dt_seconds/(3*dens*Kb*T)) + 1
+                end if
 
-                Lambda0 = loss/dens**2 ! [erg cm3 /s]
-                !  e^{-dt/Tau}=e^{-2. L0 dt/(3 n K T)}
-                emtauC = exp( -2.0*dt_seconds*dens*Lambda0/(3.0*Kb*T) )
-                !  this is the Temperature factor of change
-                ch_factor = (gain/(dens**2*Lambda0))*(1.0-emtauC)+emtauC
-
-                !  limit changes to avoid catastrophic cooling
                 ch_factor = max(ch_factor,0.5)
                 ch_factor = min(ch_factor,2.0)
+              
+            
+              else
+!                print*, 'Temperature, T=', T, primit(1,i,j,k), primit(5,i,j,k), Lambda0
+!                stop
+                T = T_floor
+                ch_factor = 2.0
+              end if   
 
-                if ( ch_factor < 0 ) print*, 'cooling factor:', ch_factor
+              primit(5,i,j,k) = primit(5,i,j,k) * ch_factor
 
-                !  apply cooling to primitive and conserved variables
-                primit(5,i,j,k)=primit(5,i,j,k)*ch_factor
-
-                !  update total energy density
-                u(5,i,j,k) = cv*primit(5,i,j,k)                                    &
-                             + 0.5*primit(1,i,j,k)*(  primit(2,i,j,k)**2           &
-                                                    + primit(3,i,j,k)**2           &
-                                                    + primit(4,i,j,k)**2  )
+              u(5,i,j,k) = cv*primit(5,i,j,k)                                 &
+                           + 0.5*primit(1,i,j,k)*( primit(2,i,j,k)**2        &
+                                                  +primit(3,i,j,k)**2        &
+                                                  +primit(4,i,j,k)**2 )
 #ifdef BFIELD
               if (mhd) then
-                u(5,i,j,k) = u(5,i,j,k) + 0.5*(  primit(6,i,j,k)**2                  &
-                                               + primit(7,i,j,k)**2                  &
-                                               + primit(8,i,j,k)**2  )
+                 u(5,i,j,k) = u(5,i,j,k) + 0.5*( primit(6,i,j,k)**2          &
+                                                +primit(7,i,j,k)**2          &
+                                                +primit(8,i,j,k)**2 )
               end if
 #endif
 
-              end if
+              !end if
           endif
         end do
       end do
