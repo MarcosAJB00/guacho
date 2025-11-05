@@ -410,7 +410,8 @@ contains
     print *, ' Time step info:'
     print *, '  dt = ', dt, '   tn = ', tn, '   dtmin = ', dtmin, '  epsmin = ', epsmin
     print *, '---------------------------------------------------------------'
-    print *, 'i', 'q(i)', 'd(i)', 'y(i)', 'rtau(i)', 'dtc', 'q-d', 'ys(i)', 'y0(i)', 'ymin(i)'
+    print *, '  i  ', '  q(i)  ', '  d(i)  ', '  y(i)  ', '  rtau(i)  ', &
+          &  '  dtc  ', '  q-d  ', '  ys(i)  ', '  y0(i)  ', '  ymin(i)  '
     print *, '---------------------------------------------------------------'
 
     do i = 1, n
