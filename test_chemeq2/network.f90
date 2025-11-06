@@ -8,7 +8,7 @@ contains
     real, intent(out)   :: q(size(y)), d(size(y))
     real, intent(in)    :: t
     real :: o2m, csp, cs, cso2, o2, n2, ne
-    real :: cr1, cr2, cr3, cr4, cr5, cr6, cr7
+    real :: cr1, cr2, cr3, cr_4, cr5, cr6, cr7
     !Numero de las especies
     !o2- ---> 1
     !cs+ ---> 2
@@ -31,20 +31,20 @@ contains
     cr1 = 5.0e-8*o2m*csp
     cr2 = 1.0e-12*csp*ne
     cr3 = 3.24e-3*cs
-    cr4 = 4.0e-1*o2m
+    cr_4 = 4.0e-1*o2m
     cr5 = 1.0e-31*o2*cs*(cs + cso2 + n2 + o2)
     cr6 = 1.24e-30*o2*o2*ne
     cr7 = 1.0e-31*o2*n2*ne 
 
     if (t >= 700.0) then
-      cr4 = 0.0
+      cr_4 = 0.0
       cr6 = 0.0
       cr7 = 0.0
     end if
     !calculate production rates (q(i)) and loss rates (d(i))
 
     q(1) = cr6 + cr7
-    d(1) = cr1 + cr4
+    d(1) = cr1 + cr_4
 
     q(2) = cr3
     d(2) = cr1 + cr2
@@ -55,7 +55,7 @@ contains
     q(4) = cr5 - 1.0e-30*o2*cs*cso2
     d(4) = - 1.0e-30*o2*cs*cso2
 
-    q(5) = cr1 + cr4
+    q(5) = cr1 + cr_4
     d(5) = cr5 + cr6 + cr7
 
     q(6) = 0.0  !agregado por mi
