@@ -27,6 +27,7 @@ contains
     n2   = y(6)
   !  ne   = y(7)
     ne   = max(csp - o2m, 0.0)  ! to ensure electron density is always positive
+    !print*, 'At time t=', t, ' ne=', ne
 
     !calculate reaction rates
     cr1 = 5.0e-8*o2m*csp
@@ -59,11 +60,11 @@ contains
     q(5) = cr1 + cr_4
     d(5) = cr5 + cr6 + cr7
 
-    q(6) = 0.0  !agregado por mi
-    d(6) = 0.0  !agregado por mi
+  !  q(6) = 0.0  !agregado por mi
+  !  d(6) = 0.0  !agregado por mi
 
-    q(7) = 0.0  !agregado por mi
-    d(7) = 0.0  !agregado por mi
+  !  q(7) = 0.0  !agregado por mi
+  !  d(7) = 0.0  !agregado por mi
 
   end subroutine gsub
 

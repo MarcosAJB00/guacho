@@ -295,7 +295,7 @@ contains
     end if
 
     epscl  = 1.0/epsmin
-    epsmax = 10.0
+    epsmax = 1.5
     if (epsmx > 0) epsmax = epsmx
 
     dtmin = 1.0e-15
