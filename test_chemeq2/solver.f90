@@ -336,7 +336,7 @@ contains
     print *, '---------------------------------------------------------------'
 
     do i = 1, n
-      dtc = epsmin * y(i) / (abs(q(i) - d(i)) + 1.0e-30)
+      dtc = epsmin * y(i) / (abs(q(i) - d(i)) + 1.0e-20)
       write(*,*) i, q(i), d(i), y(i), rtau(i), dtc, &
                                  q(i)-d(i), ys(i), y0(i), ymin(i)
     end do
