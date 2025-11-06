@@ -295,14 +295,14 @@ contains
     end if
 
     epscl  = 1.0/epsmin
-    epsmax = 1.1
+    epsmax = 10.0
     if (epsmx > 0) epsmax = epsmx
 
     dtmin = 1.0e-15
     if (dtmn > 0) dtmin = dtmn
     tstart = tnot
 
-    itermax = 5
+    itermax = 1
     if (itermx > 0) itermax = itermx
 
     do i=1,n

@@ -25,6 +25,7 @@ contains
     cso2 = y(4)
     o2   = y(5)
     n2   = y(6)
+    ne   = y(7)
     ne   = max(csp - o2m, 0.0)  ! to ensure electron density is always positive
 
     !calculate reaction rates
