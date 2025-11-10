@@ -60,11 +60,11 @@ contains
     q(5) = cr1 + cr_4
     d(5) = cr5 + cr6 + cr7
 
-  !  q(6) = 0.0  !agregado por mi
-  !  d(6) = 0.0  !agregado por mi
+    q(6) = 0.0  !agregado por mi
+    d(6) = 0.0  !agregado por mi
 
-  !  q(7) = 0.0  !agregado por mi
-  !  d(7) = 0.0  !agregado por mi
+    q(7) = 0.0  !agregado por mi
+    d(7) = 0.0  !agregado por mi
 
   end subroutine gsub
 
