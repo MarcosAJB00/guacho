@@ -4,7 +4,7 @@ contains
 
   subroutine gsub(y, q, d, t)
     implicit none
-    real, intent(in)    :: y(:)
+    real, intent(inout)    :: y(:)
     real, intent(out)   :: q(size(y)), d(size(y))
     real, intent(in)    :: t
     real :: o2m, csp, cs, cso2, o2, n2, ne
@@ -28,6 +28,7 @@ contains
   !  ne   = y(7)
     ne   = max(csp - o2m, 0.0)  ! to ensure electron density is always positive
     !print*, 'At time t=', t, ' ne=', ne
+    y(7) = ne
 
     !calculate reaction rates
     cr1 = 5.0e-8*o2m*csp
@@ -38,11 +39,11 @@ contains
     cr6 = 1.24e-30*o2*o2*ne
     cr7 = 1.0e-31*o2*n2*ne 
 
-    if (t >= 700.0) then
-      cr_4 = 0.0
-      cr6 = 0.0
-      cr7 = 0.0
-    end if
+  !  if (t >= 700.0) then
+  !    cr_4 = 0.0
+  !    cr6 = 0.0
+  !    cr7 = 0.0
+  !  end if
     !calculate production rates (q(i)) and loss rates (d(i))
 
     q(1) = cr6 + cr7
@@ -54,7 +55,8 @@ contains
     q(3) = cr1 + cr2
     d(3) = cr3 + cr5
 
-    q(4) = cr5 - 1.0e-30*o2*cs*cso2
+    q(4) = cr5
+    q(4) = q(4) - 1.0e-30*o2*cs*cso2
     d(4) = - 1.0e-30*o2*cs*cso2
 
     q(5) = cr1 + cr_4
@@ -66,6 +68,7 @@ contains
     q(7) = 0.0  !agregado por mi
     d(7) = 0.0  !agregado por mi
 
+    return
   end subroutine gsub
 
 end module network

@@ -3,8 +3,8 @@ module solver
   implicit none
     real    :: epsmin, sqreps, epscl, epsmax, dtmin, tstart
     integer :: itermax
-    integer, parameter :: n = 7
-    real    :: ymin(n)
+!    integer, parameter :: n = 7
+    real    :: ymin(7)
 
 
 contains
@@ -21,7 +21,7 @@ contains
     real,    intent(inout) :: y(n)
     integer :: i, gcount=0, rcount=0 !inicializados por mi
     integer :: iter
-    real    :: ts, tn, tfd
+    real    :: ts, tn, tfd, ne
     real    :: q(n), d(n), rtaus(n), y1(n)
     real    :: alpha, qs(n)
     real    :: ys(n), y0(n), rtau(n)
@@ -32,8 +32,9 @@ contains
     real    :: rtaui, rtaub, qt, pb, rteps
     !! ym1, ym2 and stab are only used for the stability check on dt
     real    :: ym1(n), ym2(n), stab !NO SABEMOS Q ES
-
+    integer :: unit
     
+    open(unit=10, file='salida_datos.txt', status='replace', action='write')
     ym1(:)=0.0
     ym2(:)=0.0
     tn = 0.0
@@ -49,8 +50,8 @@ contains
     !  obtain the derivatives of the initial values
     call gsub(y, q, d, tn + tstart)
     gcount = gcount + 1
-
-
+    ne   = max(y(2) - y(1), 0.0) 
+    y(7) = ne
     ! Estimate the initial stepsize
     ! Strongly increasing functions (q >> d assumed here) use a stepsize
     ! proportional to the step neede fpr the function to reach equilibrium
@@ -132,7 +133,8 @@ contains
 
       ! evaluate derivatives for the corrector
       call gsub(y, q, d, tn + tstart)
-
+      ne   = max(y(2) - y(1), 0.0) 
+      y(7) = ne
       gcount = gcount + 1
       eps    = 1.0e-10
 
@@ -255,7 +257,15 @@ contains
     ! Successful step; get the source terms for the next step and continue back
     ! to 100
     call gsub(y, q, d, tn + tstart)
-    gcount = gcount + 1
+    gcount = gcount + 1 
+    ne   = max(y(2) - y(1), 0.0) 
+    y(7) = ne
+
+    
+    !if (abs(mod(tn + tstart, 1.0)) < 1.0e-2) then
+    write(10,'(F10.4, 7E15.6)') tn, y(:)
+    !end if
+    !close(10)
     !print*,'Llamados al gsub: ', gcount,'tn: ',tn
 !    if (mod(gcount/(3*(800**3)), 10000) .eq. 0) then
 !      print *, "Integracion quimica N°", rcount, " dt=", dt, "tn=", tn,"dtg=",dtg
@@ -280,11 +290,12 @@ contains
   !> @param real ymn(n): floor value for y
   !> @param integer itermx : number of times the corrector is applied
   !>                         Default = 1
-  subroutine chemsp(epsmn, epsmx, dtmn, tnot, ymn, itermx)
+  subroutine chemsp(epsmn, epsmx, dtmn, tnot, itermx, ns, ymn, prt)
 
     implicit none
-    real,    intent(in)    :: epsmn, epsmx, dtmn, tnot
-    real,    intent(inout) :: ymn(n)
+    real,    intent(in)    :: epsmn, epsmx, dtmn, tnot, prt
+    integer, intent(in) :: ns
+    real,    intent(inout) :: ymn(ns)
     integer, intent(in)    :: itermx
     integer :: i
 
@@ -305,11 +316,14 @@ contains
     itermax = 1
     if (itermx > 0) itermax = itermx
 
-    do i=1,n
+    do i=1,ns
       ymin(i) = 1.0e-20 !antes estaba ymn en vez de ymin
       if ( ymn(i) > 0.0 ) ymin(i) = ymn(i)
     end do
 
+    if (prt .eq. 0.0) then
+      print*, epsmn,epsmx,dtmn,tnot,itermx
+    end if
   end subroutine chemsp
 
   !=======================================================================
