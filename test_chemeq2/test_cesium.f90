@@ -3,22 +3,26 @@ program test_cesium
   use solver
 
   implicit none
-  integer, parameter :: ns = 7, na = 7
-  real    :: ymin_loc(ns), ti, tf, inlp=1, delta
-  real    :: y(ns),tnot,dtg, y_f_paper(ns), epsil(ns), yi(ns)
-  real    :: suma, deltat
+  integer, parameter :: ns = 7
+  real    :: ymn(ns), ti, tf
+  real    :: y(ns), y_f_paper(ns), epsil(ns), yi(ns)
+  real    :: epsmn, epsmx, dtmn, tnot, prt
+  integer :: itermx
   integer :: i 
 
   ti=0.0
   tf = 1000.0
-  delta = 1.
-  inlp = 1.0
-  deltat = (tf - ti)/inlp
-  ymin_loc(:) = 1e-20
-
-  call chemsp(1e-5, 0.0, 0.,ti,5,ns, ymin_loc,0.) 
-
   
+  epsmn = 1e-5
+  epsmx = 0.0
+  dtmn = 0.0
+  tnot = ti
+  itermx = 5
+  ymn(:) = 1e-20
+  prt = 0.0
+
+  call chemsp(epsmn, epsmx, dtmn, tnot, itermx ,ns, ymn, prt) 
+
   !Numero de las especies
   !o2- ---> 1
   !cs+ ---> 2
@@ -43,7 +47,7 @@ program test_cesium
   end do
 
   !Solve the system
-  call chemeq2solve(deltat, y, na)
+  call chemeq2solve(tf, y, ns)
   
   !Calculate final electron density from densities of other charges species
   y(7) = y(2) - y(1)

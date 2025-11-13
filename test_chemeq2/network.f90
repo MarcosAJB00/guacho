@@ -39,11 +39,6 @@ contains
     cr6 = 1.24e-30*o2*o2*ne
     cr7 = 1.0e-31*o2*n2*ne 
 
-  !  if (t >= 700.0) then
-  !    cr_4 = 0.0
-  !    cr6 = 0.0
-  !    cr7 = 0.0
-  !  end if
     !calculate production rates (q(i)) and loss rates (d(i))
 
     q(1) = cr6 + cr7
@@ -62,13 +57,13 @@ contains
     q(5) = cr1 + cr_4
     d(5) = cr5 + cr6 + cr7
 
-    q(6) = 0.0  !agregado por mi
-    d(6) = 0.0  !agregado por mi
+    q(6) = 0.0  
+    d(6) = 0.0  
 
-    q(7) = 0.0  !agregado por mi
-    d(7) = 0.0  !agregado por mi
+    q(7) = 0.0  
+    d(7) = 0.0  
 
-    return
+  !  return
   end subroutine gsub
 
 end module network

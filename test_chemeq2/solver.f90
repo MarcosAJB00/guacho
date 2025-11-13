@@ -35,8 +35,8 @@ contains
     integer :: unit
     
     open(unit=10, file='salida_datos.txt', status='replace', action='write')
-    ym1(:)=0.0
-    ym2(:)=0.0
+    !ym1(:)= 0.0
+    !ym2(:)= 0.0
     tn = 0.0
     tfd = 1.000008 !inicializado por mi
     !  store and limit to 'ymin' the initial values
@@ -294,10 +294,10 @@ contains
 
     implicit none
     real,    intent(in)    :: epsmn, epsmx, dtmn, tnot, prt
-    integer, intent(in) :: ns
+    integer, intent(in)    :: ns
     real,    intent(inout) :: ymn(ns)
     integer, intent(in)    :: itermx
-    integer :: i
+    integer                :: i
 
     epsmin = 1.0e-2 !antes estaba en 1.0e02
     if (epsmn > 0.0) then
@@ -322,7 +322,17 @@ contains
     end do
 
     if (prt .eq. 0.0) then
-      print*, epsmn,epsmx,dtmn,tnot,itermx
+      print *
+      print '(A)', '------------------------------------------------------------'
+      print '(A)', '       Parámetros de control (CHEMSP)'
+      print '(A)', '------------------------------------------------------------'
+      print '(A8,6(3X,A10))', 'epsmn', 'epsmx', 'dtmn', 'tnot', 'itermx', 'ns', 'prt'
+      print '(4(1PE10.3,3X),I10,3X,I10,3X,1PE10.3)', epsmn, epsmx, dtmn, tnot, itermx, ns, prt
+      print '(A)', '------------------------------------------------------------'
+      print '(A)', 'Valores iniciales de ymn:'
+      print '(7(1PE11.4,1X))', (ymn(i), i=1,ns)
+      print '(A)', '------------------------------------------------------------'
+      print *
     end if
   end subroutine chemsp
 
