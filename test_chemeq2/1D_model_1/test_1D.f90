@@ -28,7 +28,8 @@ program test_1D
   real(8) :: dr
   integer :: ios
   character(len=200) :: line
-  integer :: total_lines 
+  integer :: total_lines
+  integer :: unit_status 
 
   open(10,file='Hydro_ioniz_adv.txt',status='old')
 
@@ -42,6 +43,7 @@ program test_1D
   close(10)
 
   n_points = total_lines - 100 !descarto los primeros 100 puntos (mucho ruido)
+
   allocate(r(n_points), Temp_list(n_points))
   allocate(y0_HI(n_points), y0_HeIS(n_points), y0_HeIM(n_points))
   allocate(y0_HII(n_points), y0_HeII(n_points), y0_e(n_points))
@@ -83,6 +85,20 @@ program test_1D
 
   !inicializacion del tau global. Necesario para calcular el tau del primer (atras para delante) dr
   tau_global = (/ 0., 0., 0. /)
+
+  unit_status = 20
+
+  open(unit_status, file='output/status.log', status='replace', action='write')
+
+  write(unit_status,*) '# STATUS FILE FOR test_1D_1'
+  write(unit_status,*) '# alpha        = ', alpha
+  write(unit_status,*) '# total_lines  = ', total_lines
+  write(unit_status,*) '# n_points     = ', n_points
+  write(unit_status,*) '# Flux         = ', Flux_loc
+  write(unit_status,*) '# dr           = ', dr
+  write(unit_status,*) '#'
+  write(unit_status,*) '# Columns: j  r  T'
+  write(unit_status,*)
  
   do j=1,n_points
 
@@ -138,7 +154,12 @@ program test_1D
   !Actualiza los valores de tau con los y's de chemeq y lo acumulo con los de los anteriores dr 
     call update_global_taus(y_new, dr, tau_global)
 
+    write(unit_status,'(I8,2ES20.8)') j, r(n_points-j+1), T_loc
+    flush(unit_status)
+
   end do !inicial 
+
+  close(unit_status)
 
  
 contains
