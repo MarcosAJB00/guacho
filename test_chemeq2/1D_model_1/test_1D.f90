@@ -4,7 +4,7 @@ program test_1D
 
   implicit none
   integer, parameter :: ns = 6
-  real(8), parameter :: alpha = 0.1
+  real(8), parameter :: alpha = 0.5!1.9e-11
   real    :: ymn(ns), ti, tf
   !real(8)    :: y(ns), y_f_paper(ns), epsil(ns), yi(ns)
   real    :: y(ns), yi(ns)
@@ -55,13 +55,17 @@ program test_1D
   end do
 
   do j=1,n_points
-    read(10,*) r(j), rho, v, p, Temp_list(j), heat, cool
+   read(10,*,iostat=ios) r(j), rho, v, p, Temp_list(j), heat, cool
+     if (ios /= 0) then
+      print*, 'EOF reached at j = ', j
+      exit
+     end if
   end do
-  close(10)
 
   open(11,file='Ion_species_adv.txt',status='old')
   do j=1,100
-    read(11,*)
+    read(11,*,iostat=ios)
+    if (ios /= 0) exit
   end do
 
   do j=1,n_points
@@ -69,7 +73,7 @@ program test_1D
 
     y0_HI(j)   = nhi
     y0_HeIS(j) = nhei
-    y0_HeIM(j) = nhei*alpha
+    y0_HeIM(j) = nheiTR
     y0_HII(j)  = nhii
     y0_HeII(j) = nheii
     y0_e(j)    = nhii + nheii 
@@ -78,7 +82,7 @@ program test_1D
   close(11)
   
   !Flujo de la estrella que llega al planeta. Necesario para los phi's
-  Flux_loc = 1e10
+  Flux_loc = 520055.63
 
   !Tamaño de cada dr. Necesario para calcular los tau's
   dr = (r(n_points) - r(1))/real(n_points)
@@ -97,7 +101,7 @@ program test_1D
   write(unit_status,*) '# Flux         = ', Flux_loc
   write(unit_status,*) '# dr           = ', dr
   write(unit_status,*) '#'
-  write(unit_status,*) '# Columns: j  r  T'
+  write(unit_status,*) '# Columns: r  T  phiHI  phiHeIS  phiHeIM  tau_HI  tau_HeIS  tau_HeIM'
   write(unit_status,*)
  
   do j=1,n_points
@@ -105,7 +109,7 @@ program test_1D
     ti=0.0
     tf = 1000.0
   
-    epsmn = 1e-5
+    epsmn = 1e-5!1e-5
     epsmx = 0.0
     dtmn = 0.0
     tnot = ti
@@ -154,8 +158,9 @@ program test_1D
   !Actualiza los valores de tau con los y's de chemeq y lo acumulo con los de los anteriores dr 
     call update_global_taus(y_new, dr, tau_global)
 
-    write(unit_status,'(I8,2ES20.8)') j, r(n_points-j+1), T_loc
-    flush(unit_status)
+    write(unit_status,'(ES12.4,7ES15.6)') r(n_points-j+1), T_loc, phiHI_loc, phiHeIS_loc, phiHeIM_loc, &
+                       tau_global(1), tau_global(2), tau_global(3)
+    !flush(unit_status)
 
   end do !inicial 
 

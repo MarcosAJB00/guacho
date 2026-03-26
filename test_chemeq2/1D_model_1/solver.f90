@@ -202,7 +202,7 @@ contains
       print*, 'chemeq error; stepsize too small'
 
       ! call error diagnostic routine     
-      call chemer(y, n, dt, tn, dtmin, epsmin, q, d, rtau, ys, y0, ymin)
+      !call chemer(y, n, dt, tn, dtmin, epsmin, q, d, rtau, ys, y0, ymin)
 !      stop
     end if
 
