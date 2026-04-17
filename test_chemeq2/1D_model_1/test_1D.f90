@@ -124,6 +124,8 @@ program test_1D
 
     call init_local_taus(y0, dr, tau_global, tau_loc)
 
+    tau_global = tau_loc !actualizo el tau global para el siguiente dr
+
     call phis_rate(Flux_loc,tau_loc, phiHI_loc, phiHeIS_loc, phiHeIM_loc)
 
 
@@ -154,9 +156,9 @@ program test_1D
     call chemeq2solve(tf, y, ns, T_loc, phiHI_loc, phiHeIS_loc, phiHeIM_loc, j)
 
   !solo me interesan las especies neutras para actualizar los taus  
-    y_new = (/ y(1), y(3), y(4) /) 
+    !y_new = (/ y(1), y(3), y(4) /) 
   !Actualiza los valores de tau con los y's de chemeq y lo acumulo con los de los anteriores dr 
-    call update_global_taus(y_new, dr, tau_global)
+    !call update_global_taus(y_new, dr, tau_global)
 
     write(unit_status,'(ES12.4,7ES15.6)') r(n_points-j+1), T_loc, phiHI_loc, phiHeIS_loc, phiHeIM_loc, &
                        tau_global(1), tau 
