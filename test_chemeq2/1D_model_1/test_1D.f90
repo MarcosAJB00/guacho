@@ -4,7 +4,7 @@ program test_1D
 
   implicit none
   integer, parameter :: ns = 6
-  real(8), parameter :: alpha = 0.5!1.9e-11
+  !real(8), parameter :: alpha = 0.5!1.9e-11
   real    :: ymn(ns), ti, tf
   !real(8)    :: y(ns), y_f_paper(ns), epsil(ns), yi(ns)
   real    :: y(ns), yi(ns)
@@ -73,7 +73,7 @@ program test_1D
 
     y0_HI(j)   = nhi
     y0_HeIS(j) = nhei
-    y0_HeIM(j) = nheiTR
+    y0_HeIM(j) = nheiTR*1e5
     y0_HII(j)  = nhii
     y0_HeII(j) = nheii
     y0_e(j)    = nhii + nheii 
@@ -82,7 +82,7 @@ program test_1D
   close(11)
   
   !Flujo de la estrella que llega al planeta. Necesario para los phi's
-  Flux_loc = 520055.63
+  Flux_loc = !520055.63 ! [photons cm^-2 s^-1] ????
 
   !Tamaño de cada dr. Necesario para calcular los tau's
   dr = (r(n_points) - r(1))/real(n_points)
@@ -92,7 +92,7 @@ program test_1D
 
   unit_status = 20
 
-  open(unit_status, file='output/status.log', status='replace', action='write')
+  open(unit_status, file='status.log', status='replace', action='write')
 
   write(unit_status,*) '# STATUS FILE FOR test_1D_1'
   write(unit_status,*) '# alpha        = ', alpha
@@ -159,7 +159,7 @@ program test_1D
     call update_global_taus(y_new, dr, tau_global)
 
     write(unit_status,'(ES12.4,7ES15.6)') r(n_points-j+1), T_loc, phiHI_loc, phiHeIS_loc, phiHeIM_loc, &
-                       tau_global(1), tau_global(2), tau_global(3)
+                       tau_global(1), tau 
     !flush(unit_status)
 
   end do !inicial 
