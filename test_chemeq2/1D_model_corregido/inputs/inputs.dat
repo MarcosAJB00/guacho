@@ -1,0 +1,12 @@
+T 9000.0d0                             !en kelvis
+Rp 1.38d0                              !en Rjup
+FluxHI 5.590d+14                       !en flujo de fotones [1/cm2/s]
+FluxHeIS 1.315d+14                     !en flujo de fotones [1/cm2/s]
+FluxHeIM 1.469e+17                     !en flujo de fotones [1/cm2/s]
+He_H_ratio 0.1d0                       !fraccion de He/H
+h_ion_frac 0.001d0                     !fraccion de H ionizado inicial 
+he_ion_frac 0.001d0                    !fraccion de He ionizado inicial
+he_metastable_frac 0.0001d0            !fraccion de He metastabel respecto a estado fundamental 
+dtime 300.0d0                           !paso temporal
+time 50000.0d0                         !tiempo total de integracion en s
+perfil_densidad neutral_density_profile.dat    !nombre del perfil de densidad total inicial
