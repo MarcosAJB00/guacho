@@ -8,5 +8,5 @@ h_ion_frac 0.001d0                     !fraccion de H ionizado inicial
 he_ion_frac 0.001d0                    !fraccion de He ionizado inicial
 he_metastable_frac 0.0001d0            !fraccion de He metastabel respecto a estado fundamental 
 dtime 300.0d0                           !paso temporal
-time 50000.0d0                         !tiempo total de integracion en s
+time 25000.0d0                         !tiempo total de integracion en s
 perfil_densidad neutral_density_profile.dat    !nombre del perfil de densidad total inicial

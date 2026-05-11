@@ -116,7 +116,7 @@ rho = density_profile((r * Rp).to(u.cm).value,
                       mdot)
 
 # nuevos puntos equiespaciados
-n_points = 1000
+n_points = 100
 r_new, rho_new = resample_profile(r, rho, n_points=n_points)
 
 # guardar archivo

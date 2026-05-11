@@ -4,7 +4,7 @@ module solver
     real(kind=8)    :: epsmin, sqreps, epscl, epsmax, dtmin, tstart
     integer :: itermax
 !    integer, parameter :: n = 7
-    real(kind=8)    :: ymin(7)
+    real(kind=8)    :: ymin(6)
 
 
 contains
@@ -56,8 +56,8 @@ contains
     !call gsub(y, q, d, tn + tstart, iT, iphHI, iphHeIS, iphHeIM)
     call gsub(y, q, d, iT, iphHI, iphHeIS, iphHeIM)
     gcount = gcount + 1
-    ne   = max(y(2) - y(1), 0.0) 
-    y(7) = ne !
+    ne   = max(y(2) + y(5), 0.0) 
+    y(6) = ne !
     ! Estimate the initial stepsize
     ! Strongly increasing functions (q >> d assumed here) use a stepsize
     ! proportional to the step neede fpr the function to reach equilibrium
@@ -140,8 +140,8 @@ contains
       ! evaluate derivatives for the corrector
       !call gsub(y, q, d, tn + tstart, iT, iphHI, iphHeIS, iphHeIM)
       call gsub(y, q, d, iT, iphHI, iphHeIS, iphHeIM)
-      ne   = max(y(2) - y(1), 0.0) 
-      y(7) = ne !y(7)
+      ne   = max(y(2) + y(5), 0.0) 
+      y(6) = ne !y(6)
       gcount = gcount + 1
       eps    = 1.0e-10
 
@@ -267,8 +267,8 @@ contains
     !call gsub(y, q, d, tn + tstart, iT, iphHI, iphHeIS, iphHeIM)
     call gsub(y, q, d, iT, iphHI, iphHeIS, iphHeIM)
     gcount = gcount + 1 
-    ne   = max(y(2) - y(1), 0.0) 
-    y(7) = ne
+    ne   = max(y(2) + y(5), 0.0) 
+    y(6) = ne
 
     !if (abs(mod(tn + tstart, 1.0)) < 1.0e-5) then
     !write(iu,'(F10.4, 7E15.6)') tn, y(:)

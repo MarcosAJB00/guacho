@@ -66,7 +66,8 @@ program test_1D
   call cpu_time(t1)
 
 ! CONTAR LINEAS PERFIL DENSIDAD
-  open(10,file=trim(perfil_densidad),status='old',action='read')
+  open(10,file='./inputs/'//trim(perfil_densidad),status='old',action='read')
+  print *, 'Reading density profile from: ', trim(perfil_densidad)
 
   total_lines = 0
   do
@@ -87,7 +88,7 @@ program test_1D
   allocate(unit_out(n_points), unit_phys(n_points))
 
   ! LEER PERFIL DE DENSIDAD
-  open(10,file=trim(perfil_densidad),status='old',action='read')
+  open(10,file='./inputs/'//trim(perfil_densidad),status='old',action='read')
 
   j = 0
   do

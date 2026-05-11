@@ -13,7 +13,7 @@ python perfil_radial_final.py
 python phis_taus.py
 
 # lista de inputs a usar
-INPUTS=(1 3 5 8 10)
+INPUTS=(1 20 50 70 90 100)
 
 # loop
 for i in "${INPUTS[@]}"
