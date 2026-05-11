@@ -5,6 +5,7 @@ program test_1D
 
   character(len=50)  :: label
   character(len=200) :: perfil_densidad
+  character(len=200) :: perfil_temperatura 
 
   real(8) :: T, Rp, time, dtime
   real(8) :: FluxHI, FluxHeIS, FluxHeIM
@@ -17,7 +18,7 @@ program test_1D
   real(kind=8)    :: ymn(ns), ti, tf, y(ns) !, yi(ns)
   real(kind=8)    :: epsmn, epsmx, dtmn, tnot, prt
 
-  real(kind=8), allocatable :: r(:), rho(:)
+  real(kind=8), allocatable :: r(:), rho(:), T_profile(:)
   real(kind=8), allocatable :: y0_HI(:), y0_HII(:), y0_HeIS(:)
   real(kind=8), allocatable :: y0_HeIM(:), y0_HeII(:), y0_e(:)
   real(kind=8), allocatable :: yi_all(:,:)
@@ -29,6 +30,7 @@ program test_1D
   real(kind=8) :: T_loc, phiHI_loc, phiHeIS_loc, phiHeIM_loc
   real(kind=8) :: tau_global(3), tau_loc(3), y0(3)
   real(kind=8) :: t1, t2
+  real(kind=8) :: r_dummy
 
   character(len=200) :: line
 
@@ -47,6 +49,7 @@ program test_1D
   read(99,*) label, dtime
   read(99,*) label, time
   read(99,*) label, perfil_densidad
+  read(99,*) label, perfil_temperatura
 
   close(99)
 
@@ -80,7 +83,7 @@ program test_1D
 
   n_points = total_lines
 
-  allocate(r(n_points), rho(n_points))
+  allocate(r(n_points), rho(n_points), T_profile(n_points))
   allocate(y0_HI(n_points), y0_HII(n_points))
   allocate(y0_HeIS(n_points), y0_HeIM(n_points))
   allocate(y0_HeII(n_points), y0_e(n_points))
@@ -102,11 +105,27 @@ program test_1D
 
   close(10)
 
+  ! LEER PERFIL DE TEMPERATURA
+  open(11,file='./inputs/'//trim(perfil_temperatura), &
+      status='old',action='read')
+
+  j = 0
+  do
+    read(11,'(A)',iostat=ios) line
+    if (ios /= 0) exit
+    if (line(1:1) == '#') cycle
+
+    j = j + 1
+    read(line,*) r_dummy, T_profile(j)
+    print *, 'Read T_profile(', j, ') = ', T_profile(j), ' K'
+  end do
+  close(11)
+
   mp        = 1.67d-24
   R_jupiter = 7.1492d9
   r_planet  = 1.38 * R_jupiter
   dr        = r_planet*(r(n_points)-r(1))/real(n_points,8)
-  T_loc = T
+  !T_loc = T
 
 ! PERFILES INICIALES
   open(30,file='./output/perfiles_iniciales.txt',status='replace')
@@ -203,6 +222,9 @@ program test_1D
       ! Phi  local
       call phis_rate(FluxHI, FluxHeIS, FluxHeIM, tau_loc, &
                     phiHI_loc, phiHeIS_loc, phiHeIM_loc)
+
+      ! temperatura local
+      T_loc = T_profile(i)
 
       ! Inicializar estado químico
       y(1) = y0_HI(i)
