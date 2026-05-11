@@ -16,20 +16,16 @@ Lsun = 3.826e33     # erg/s
 # =========================
 # PLANETA: HD 209458b
 # =========================
-a = 0.04747 * au   # distancia orbital
-
+a_planet = 0.04747 * au   # distancia orbital
+a_spectrum = 1 * au           # distancia a la que se mide el espectro (1 au)
 # =========================
 # LEER ESPECTRO
 # =========================
 # archivo: wavelength[nm], L_lambda[Lsun]
-#wvl_nm, L_lambda_Lsun = np.loadtxt('lxuvdata_min_fullspectra.dat', unpack=True, skiprows=1)
-wvl, F_lambda = np.loadtxt('spectrum_lips_euv.dat', unpack=True, skiprows=1)
-# conversiones
-#wvl = wvl_nm * 10.0              # nm → Angstrom
-#L_lambda = L_lambda_Lsun * Lsun  # → erg/s
+wvl, F_lambda = np.loadtxt('spectrum_1AU.txt', unpack=True, skiprows=0)
 
-# flujo en el planeta
-#F_lambda = L_lambda / (4 * np.pi * a**2)   # erg/s/cm2/A
+# flujo en el planeta (escalado por distancia)
+F_lambda = F_lambda * (a_spectrum / a_planet)**2
 
 # =========================
 # PLOT ESPECTRO
@@ -40,7 +36,7 @@ plt.plot(wvl, F_lambda)
 plt.xlabel('Wavelength [A]')
 plt.ylabel('Flux [erg s$^{-1}$ cm$^{-2}$ A$^{-1}$]')
 plt.title('Flux at HD 209458b')
-plt.savefig('spectrum_lips_euv.png', dpi=300)
+plt.savefig('spectrum.png', dpi=300)
 plt.show()
 
 # =========================
@@ -50,17 +46,17 @@ plt.show()
 # X-ray [0.1–100 Å]
 mask_x = (wvl > 0.1) & (wvl < 100)
 Fx = integrate.simpson(F_lambda[mask_x], wvl[mask_x])
-Lx = 4*np.pi*a**2 * Fx
+Lx = 4*np.pi*a_planet**2 * Fx
 
 # EUV [100–912 Å]
 mask_euv = (wvl > 100) & (wvl < 912)
 Feuv = integrate.simpson(F_lambda[mask_euv], wvl[mask_euv])
-Leuv = 4*np.pi*a**2 * Feuv
+Leuv = 4*np.pi*a_planet**2 * Feuv
 
 # XEUV [0.1–912 Å]
 mask_xeuv = (wvl > 0.1) & (wvl < 912)
 Fxeuv = integrate.simpson(F_lambda[mask_xeuv], wvl[mask_xeuv])
-Lxeuv = 4*np.pi*a**2 * Fxeuv
+Lxeuv = 4*np.pi*a_planet**2 * Fxeuv
 
 print('Fx   =', Fx, 'erg/s/cm2')
 print('Lx   =', Lx, 'erg/s')
