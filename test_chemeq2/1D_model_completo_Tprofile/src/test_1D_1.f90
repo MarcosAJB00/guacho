@@ -117,7 +117,7 @@ program test_1D
 
     j = j + 1
     read(line,*) r_dummy, T_profile(j)
-    print *, 'Read T_profile(', j, ') = ', T_profile(j), ' K'
+    !print *, 'Read T_profile(', j, ') = ', T_profile(j), ' K'
   end do
   close(11)
 
