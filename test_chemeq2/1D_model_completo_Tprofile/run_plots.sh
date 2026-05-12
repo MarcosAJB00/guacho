@@ -3,9 +3,7 @@
 # entrar a carpeta plots
 cd plots || exit
 
-echo "=================================="
 echo "Running plotting scripts..."
-echo "=================================="
 
 # scripts simples
 python inicial.py
@@ -22,6 +20,4 @@ do
     python evolucion_temporal.py $i
 done
 
-echo "=================================="
 echo "Plots finished"
-echo "=================================="
