@@ -11,7 +11,7 @@ contains
   !=======================================================================
   !> @brief Main driver for the module
   !> @details Advances the rate equations by a time increment dtg
-  subroutine chemeq2solve(dtg, y, n, iT, iphHI, iphHeIS, iphHeIM, j_index)
+  subroutine chemeq2solve(dtg, y, n, iT, iphHI, iphHeIS, iphHeIM)
 
     use network
 
@@ -32,7 +32,7 @@ contains
     real(kind=8)    :: rtaui, rtaub, qt, pb, rteps
     !! ym1, ym2 and stab are only used for the stability check on dt
     real(kind=8)    :: ym1(n), ym2(n), stab !NO SABEMOS Q ES
-    integer :: iu, j_index
+    integer :: iu
 
     real (kind=8), intent(in)  :: iT, iphHI, iphHeIS, iphHeIM
     !character(len=50) :: filename

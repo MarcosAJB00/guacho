@@ -236,7 +236,7 @@ program test_1D
 
       ! Integración química
       call chemeq2solve(tf, y, ns, T_loc, &
-                      phiHI_loc, phiHeIS_loc, phiHeIM_loc, j)
+                      phiHI_loc, phiHeIS_loc, phiHeIM_loc)
 
       ! ESCRITURA RESULTADOS 
       ! species 
