@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import glob
 import os
 
-init_data = np.loadtxt("../inputs/neutral_density_profile.dat", comments="#")
+init_data = np.loadtxt("../inputs/density_profile_ATES.dat", comments="#")
 
 r_init = init_data[:, 0]
 rho_init = init_data[:, 1]
@@ -34,5 +34,5 @@ plt.yscale("log")     # opcional
 plt.grid(True, alpha=0.3)
 plt.legend()
 plt.tight_layout()
-plt.savefig("./perfiles/perfil_inicial.png", dpi=300)
+plt.savefig("./perfiles/perfil_inicial.png", dpi=300, bbox_inches='tight')
 plt.show()
