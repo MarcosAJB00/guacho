@@ -138,15 +138,27 @@ plt.savefig("./perfiles/fraccion_h_final.png", dpi=300)
 plt.show()
 
 plt.figure(figsize=(8,6))
-dest_total_final= np.sum(X_f_sorted[:5, :], axis=0)
-dest_total_ini = np.sum(X_i_sorted[:5, :], axis=0)
+#dest_total_final= np.sum(X_f_sorted[:, :], axis=0)
+#dest_total_ini = np.sum(X_i_sorted[:, :], axis=0)
+
+r, rho = np.loadtxt("../inputs/density_profile_ATES.dat", comments="#", unpack=True)
+mp = 1.67e-24  # masa de un protón en gramos
+me = 9.11e-28  # masa de un electrón en gramos
+mhe = 4*mp     # masa de un átomo de helio en gramos
+dest_total_final = (X_f_sorted[0, :]*mp + X_f_sorted[1, :]*mp + 
+                   X_f_sorted[2, :]*mhe + X_f_sorted[3, :]*mhe + 
+                   X_f_sorted[4, :]*mhe )#+ X_f_sorted[5, :]*me )
+dest_total_ini = (X_i_sorted[0, :]*mp + X_i_sorted[1, :]*mp + 
+                 X_i_sorted[2, :]*mhe + X_i_sorted[3, :]*mhe + 
+                 X_i_sorted[4, :]*mhe )#+ X_i_sorted[5, :]*me )
 #diff = np.abs(dest_total_final - dest_total_ini)
 #plt.plot(r_sorted, diff, "-", color='royalblue', lw=2, label="dest total |final - initial|")
 plt.plot(r_sorted, dest_total_final, "-", color='blue', lw=2, label="dest total final")
 plt.plot(r_sorted, dest_total_ini, "--", color='red', lw=2, label="dest total initial")
+plt.plot(r, rho, ":", color='gray', lw=2, label="densidad total input")
 plt.grid(True, which='both', linestyle='--', linewidth=0.5, alpha=0.7)
 plt.xlabel("Radio (Rp)")
-plt.ylabel("densidad numerica total")
+plt.ylabel("densidad total (g/cm$^3$)")
 plt.yscale("log")
 plt.xlim(0.95, r_sorted[-1])
 plt.legend(ncol=2)

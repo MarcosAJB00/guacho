@@ -31,6 +31,7 @@ program test_1D
   real(kind=8) :: tau_global(3), tau_loc(3), y0(3)
   real(kind=8) :: t1, t2
   real(kind=8) :: r_dummy
+  real(kind=8) :: fHI, fHII, fHeIS, fHeIM, fHeII, fe, mu_eff, n_tot, me
 
   character(len=200) :: line
 
@@ -121,7 +122,8 @@ program test_1D
   end do
   close(11)
 
-  mp        = 1.67d-24
+  mp        = 1.67d-24        ! protón mass en g
+  me        = 9.1093837d-28   ! electron mass in g
   R_jupiter = 7.1492d9
   r_planet  = 1.38 * R_jupiter
   dr        = r_planet*(r(n_points)-r(1))/real(n_points,8)
@@ -132,20 +134,57 @@ program test_1D
 
   write(30,*) '# j y0_HI y0_HII y0_HeIS y0_HeIM y0_HeII y0_e'
 
+  !do j=1,n_points
+  !  rho(j)     = rho(j)/mp ! convertir de g/cm^3 a 1/cm^3
+
+  !  y0_HI(j)   = rho(j)*(1d0-He_H_ratio)*(1d0-h_ion_frac)
+  !  y0_HII(j)  = rho(j)*(1d0-He_H_ratio)*h_ion_frac
+
+  !  y0_HeIS(j) = rho(j)*He_H_ratio*(1d0-he_ion_frac)*(1d0-he_metastable_frac)
+  !  y0_HeIM(j) = rho(j)*He_H_ratio*(1d0-he_ion_frac)*he_metastable_frac
+  !  y0_HeII(j) = rho(j)*He_H_ratio*he_ion_frac
+
+  !  y0_e(j)    = y0_HII(j) + y0_HeII(j)
+
+  !  write(30,'(I6,1X,6ES16.8)') j, y0_HI(j), y0_HII(j), y0_HeIS(j), &
+  !                              y0_HeIM(j), y0_HeII(j), y0_e(j)
+  !end do
+
   do j=1,n_points
-    rho(j)     = rho(j)/mp ! convertir de g/cm^3 a 1/cm^3
-    
-    y0_HI(j)   = rho(j)*(1d0-He_H_ratio)*(1d0-h_ion_frac)
-    y0_HII(j)  = rho(j)*(1d0-He_H_ratio)*h_ion_frac
+    ! Fracciones numéricas
+    fHI   = (1d0-He_H_ratio)*(1d0-h_ion_frac)
+    fHII  = (1d0-He_H_ratio)*h_ion_frac
 
-    y0_HeIS(j) = rho(j)*He_H_ratio*(1d0-he_ion_frac)*(1d0-he_metastable_frac)
-    y0_HeIM(j) = rho(j)*He_H_ratio*(1d0-he_ion_frac)*he_metastable_frac
-    y0_HeII(j) = rho(j)*He_H_ratio*he_ion_frac
+    fHeIS = He_H_ratio*(1d0-he_ion_frac) * &
+            (1d0-he_metastable_frac)
 
-    y0_e(j)    = y0_HII(j) + y0_HeII(j)
+    fHeIM = He_H_ratio*(1d0-he_ion_frac) * &
+            he_metastable_frac
 
-    write(30,'(I6,1X,6ES16.8)') j, y0_HI(j), y0_HII(j), y0_HeIS(j), &
-                                y0_HeIM(j), y0_HeII(j), y0_e(j)
+    fHeII = He_H_ratio*he_ion_frac
+
+    ! electrones (neutralidad de carga)
+    fe = fHII + fHeII
+
+    mu_eff = mp*(fHI + fHII) + &
+             4d0*mp*(fHeIS + fHeIM + fHeII) + &
+             me*fe
+
+    n_tot = rho(j)/mu_eff
+
+    y0_HI(j)   = n_tot*fHI
+    y0_HII(j)  = n_tot*fHII
+
+    y0_HeIS(j) = n_tot*fHeIS
+    y0_HeIM(j) = n_tot*fHeIM
+    y0_HeII(j) = n_tot*fHeII
+
+    y0_e(j)    = n_tot*fe
+
+    write(30,'(I6,1X,6ES16.8)') j, y0_HI(j), y0_HII(j), &
+                                y0_HeIS(j), y0_HeIM(j), &
+                                y0_HeII(j), y0_e(j)
+
   end do
 
   close(30)
