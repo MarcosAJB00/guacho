@@ -133,13 +133,14 @@ program test_1D
   write(30,*) '# j y0_HI y0_HII y0_HeIS y0_HeIM y0_HeII y0_e'
 
   do j=1,n_points
+    rho(j)     = rho(j)/mp ! convertir de g/cm^3 a 1/cm^3
+    
+    y0_HI(j)   = rho(j)*(1d0-He_H_ratio)*(1d0-h_ion_frac)
+    y0_HII(j)  = rho(j)*(1d0-He_H_ratio)*h_ion_frac
 
-    y0_HI(j)   = rho(j)*(1d0-He_H_ratio)*(1d0-h_ion_frac)/mp
-    y0_HII(j)  = rho(j)*(1d0-He_H_ratio)*h_ion_frac/mp
-
-    y0_HeIS(j) = rho(j)*He_H_ratio*(1d0-he_ion_frac)*(1d0-he_metastable_frac)/mp
-    y0_HeIM(j) = rho(j)*He_H_ratio*(1d0-he_ion_frac)*he_metastable_frac/mp
-    y0_HeII(j) = rho(j)*He_H_ratio*he_ion_frac/mp
+    y0_HeIS(j) = rho(j)*He_H_ratio*(1d0-he_ion_frac)*(1d0-he_metastable_frac)
+    y0_HeIM(j) = rho(j)*He_H_ratio*(1d0-he_ion_frac)*he_metastable_frac
+    y0_HeII(j) = rho(j)*He_H_ratio*he_ion_frac
 
     y0_e(j)    = y0_HII(j) + y0_HeII(j)
 
