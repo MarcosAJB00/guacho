@@ -47,7 +47,7 @@ density_total_ini = (mp*(HI_test + HII_test) +
                     mhe*(HeIS_test + HeIM_test + HeII_test) 
                     + me*e_test)
 
-plt.plot(r_init, density_total_ini, "-", color='blue', lw=2, label="densidad total inicial")
+plt.plot(r_init, density_total_ini, "-", color='blue', lw=2, label="densidad total inicial code")
 plt.plot(r_init, rho_total_ini, ":", color='red', lw=2, label="densidad total input")
 plt.grid(True, which='both', linestyle='--', linewidth=0.5, alpha=0.7)
 plt.xlabel("Radio (Rp)")
