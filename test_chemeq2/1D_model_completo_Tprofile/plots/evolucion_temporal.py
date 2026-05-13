@@ -94,5 +94,5 @@ plt.yscale("log")     # opcional
 plt.grid(True, alpha=0.3)
 plt.legend()
 plt.tight_layout()
-plt.savefig(f"./evolucion/taus_{salida}.png", dpi=300)  # guardar figura
+plt.savefig(f"./evolucion/taus_{salida}.png", dpi=300, bbox_inches='tight')  # guardar figura
 plt.show()
