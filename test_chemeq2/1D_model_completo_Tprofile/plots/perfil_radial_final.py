@@ -46,6 +46,21 @@ r_sorted = r[sort_idx]
 X_i_sorted = X_initial[:, sort_idx]
 X_f_sorted = X_final[:, sort_idx]
 
+output_file = "../output/perfiles_finales.dat"
+output_data = np.column_stack([
+    r_sorted,
+    X_f_sorted[0, :],  # HI
+    X_f_sorted[1, :],  # HII
+    X_f_sorted[2, :],  # HeIS
+    X_f_sorted[3, :],  # HeIM
+    X_f_sorted[4, :],  # HeII
+    X_f_sorted[5, :]   # e-
+    ])
+
+header = ("r(Rp)   HI   HII   HeIS   HeIM   HeII   e-")
+np.savetxt(output_file, output_data, fmt="%.8e", header=header)
+print(f"Archivo guardado: {output_file}")
+
 # =========================
 # 4. Graficar
 # =========================
