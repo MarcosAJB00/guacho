@@ -46,6 +46,10 @@ fig_name_hei = ''
 fig_name_lya = ''
 abs_file   = ''
 
+r, rho = np.loadtxt("../inputs/density_profile_ATES.dat", comments="#", unpack=True)
+r, T = np.loadtxt("../inputs/temperature_profile_ATES.dat", comments="#", unpack=True)
+r, v = np.loadtxt("../inputs/velocity_profile_ATES.dat", comments="#", unpack=True)
+
 # Data not in input_file
 R_star    = 0.44*R_sun  # Stellar radius
 Instr_res_HeTR = 8e4       # Instrument resolution CARMENES: 80,000 -- GIANO-B: 50,000
@@ -165,9 +169,10 @@ with open(Input_file,'r') as f:
 f.close()
 
 # Load profiles
-r,rho,v,p,T,heat,cool = np.loadtxt(Hydro_file, unpack = True)
-r,nhi,nhii,nhei,nheii,nheiii,nheiTR = np.loadtxt(Ioniz_file, unpack = True)
-
+#r,rho,v,p,T,heat,cool = np.loadtxt(Hydro_file, unpack = True)
+r,nhi,nhii,nhei,nheiTR,nheii,ne = np.loadtxt(Ioniz_file, unpack = True)
+ntot = nhi + nhii + nhei + nheiTR + nheii + ne
+p = ntot*kb*T + rho*v**2.0
 # Save inverted profiles
 r_I 	   = -np.flip(r)
 T_I 	   =  np.flip(T)
