@@ -39,15 +39,15 @@ gray  = '#a0a0a0'			# Color gray for line plot
 # abs_file   = Name of the output file with absorption data(leave empty for not saving the file)
 
 path = '.'  # ATES' files destination folder
-Input_file = #path + '/input.inp'
-Hydro_file = 
+#Input_file = #path + '/input.inp'
+#Hydro_file = 
 Ioniz_file = '../output/perfiles_finales.dat'
-fig_name_hei = ''
-fig_name_lya = ''
+fig_name_hei = 'HeI_lines.png'
+fig_name_lya = 'Lya_line.png'
 abs_file   = ''
 
 r, rho = np.loadtxt("../inputs/density_profile_ATES.dat", comments="#", unpack=True)
-r, T = np.loadtxt("../inputs/temperature_profile_ATES.dat", comments="#", unpack=True)
+r, T = np.loadtxt("../inputs/temperature_profile_uniform.dat", comments="#", unpack=True)
 r, v = np.loadtxt("../inputs/velocity_profile_ATES.dat", comments="#", unpack=True)
 
 # Data not in input_file
@@ -152,6 +152,7 @@ def get_word(string_in,word_number):
 # ------------------------- #
 
 # Read useful parameters from the input file of ATES
+'''
 with open(Input_file,'r') as f:
 
 	data = f.readline()
@@ -167,6 +168,14 @@ with open(Input_file,'r') as f:
 		
 		
 f.close()
+'''
+#Planet name: HD209458b, 
+#valores sacados del input file de ATES para este planeta
+Rp = 1.401*RJ
+Mp = 0.72*MJ
+T0 = 1450.0
+a_orb = 0.048*AU
+Mstar = 1.2*M_sun
 
 # Load profiles
 #r,rho,v,p,T,heat,cool = np.loadtxt(Hydro_file, unpack = True)
