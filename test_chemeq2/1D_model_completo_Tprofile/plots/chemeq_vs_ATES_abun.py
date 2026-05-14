@@ -107,10 +107,10 @@ ax1.plot(r, nheiTR, '--', color=colors["HeIM"], label=r'$n_{HeIM}$')
 # ---- temperatura ----
 ax2 = ax1.twinx()
 
-ax2.plot(r_T, T, color='royalblue', lw=2, ls=':', label='T')
+ax2.plot(r_T, T, color='k', lw=2, ls=':', label='T')
 
-ax2.set_ylabel('Temperatura (K)', color='royalblue')
-ax2.tick_params(axis='y', labelcolor='royalblue')
+ax2.set_ylabel('Temperatura (K)', color='k')
+ax2.tick_params(axis='y', labelcolor='k')
 
 # formato
 ax1.set_xlabel("Radio (Rp)")
