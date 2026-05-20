@@ -163,7 +163,9 @@ subroutine gsub(y, q, d, T, phHI, phHeIS, phHeIM)
     real (kind=8),parameter    :: ahI_246=1.24e-18, aheIS_246=2.42e-19, aheIM_246=4.26e-19
 
     !fraction of photons from helium recombination to ground state that can ionize hydrogen (ostebrook)
-    yy  = ahI_246*y(iHI) / (y(iHI)*ahI_246 + y(iHeIS)*aheIS_246 + y(iHeIM)*aheIM_246)
+    !yy  = ahI_246*y(iHI) / (y(iHI)*ahI_246 + y(iHeIS)*aheIS_246 + y(iHeIM)*aheIM_246)
+        
+    yy  = ahI_246*y(iHI) / (y(iHI)*ahI_246 + y(iHeIS)*aheIS_246) !+ y(iHeIM)*aheIM_246)
     !probability  of photons that can ionize hydrogen from recombination to excited levels of helium
     p   = 0.67
 
