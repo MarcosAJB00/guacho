@@ -138,6 +138,7 @@ ax2.plot(r_T, T, color='k', lw=2, ls=':', label='T')
 
 ax2.set_ylabel('Temperatura (K)', color='k')
 ax2.tick_params(axis='y', labelcolor='k')
+ax2.set_yscale("log")
 
 ax1.set_xlabel("Radio (Rp)")
 ax1.set_ylabel("Densidad numerica")
