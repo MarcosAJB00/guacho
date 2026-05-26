@@ -170,7 +170,7 @@ plt.figure(figsize=(8,6))
 #dest_total_final= np.sum(X_f_sorted[:, :], axis=0)
 #dest_total_ini = np.sum(X_i_sorted[:, :], axis=0)
 
-r, rho = np.loadtxt("../inputs/density_profile_Roman.dat", comments="#", unpack=True)
+r, rho = np.loadtxt("../inputs/density_profile_ATES.dat", comments="#", unpack=True)
 mp = 1.67e-24  # masa de un protón en gramos
 me = 9.11e-28  # masa de un electrón en gramos
 mhe = 4*mp     # masa de un átomo de helio en gramos

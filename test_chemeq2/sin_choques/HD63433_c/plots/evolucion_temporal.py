@@ -96,17 +96,3 @@ plt.legend()
 plt.tight_layout()
 plt.savefig(f"./evolucion/taus_{salida}.png", dpi=300, bbox_inches='tight')  # guardar figura
 plt.show()
-
-'''
-plt.figure(figsize=(10,6))
-x = np.arange(len(t))
-plt.scatter(x, t, label='time')
-plt.xlabel("Tiempo [s]")
-plt.ylabel("Tiempo [s]")
-plt.title(f"Evolución temporal de tiempo en R={r[0]:.2e} Rp")
-plt.grid(True, alpha=0.3)
-plt.legend()
-plt.tight_layout()
-plt.savefig(f"./evolucion/time_{salida}.png", dpi=300)  # guardar figura
-plt.show()
-'''

@@ -6,9 +6,9 @@ cd plots || exit
 echo "Running plotting scripts..."
 
 # scripts simples
-#python inicial.py
-#python perfil_radial_final.py
-#python phis_taus.py
+python inicial.py
+python perfil_radial_final.py
+python phis_taus.py
 
 # lista de inputs a usar
 INPUTS=(10 100 250 500 750 900 1000)
