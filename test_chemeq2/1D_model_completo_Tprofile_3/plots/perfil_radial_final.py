@@ -228,3 +228,20 @@ plt.yscale("log")
 plt.tight_layout()
 plt.savefig("./perfiles/dest_He.png", dpi=300)
 plt.show()
+
+plt.figure(figsize=(8,6))
+nheim_f = X_f_sorted[3, :]
+nheis_f = X_f_sorted[2, :]
+nheim_i = X_i_sorted[3, :]
+nheis_i = X_i_sorted[2, :]
+plt.plot(r_sorted, nheim_f/nheis_f, "-", color='blue', lw=2, label="HeIM/HeIS final")
+plt.plot(r_sorted, nheim_i/nheis_i, "--", color='red', lw=2, label="HeIM/HeIS initial")
+plt.grid(True, which='both', linestyle='--', linewidth=0.5, alpha=0.7)
+plt.xlabel("Radio (Rp)")
+plt.ylabel("HeIM/HeIS")
+plt.xlim(0.95, r_sorted[-1])
+plt.legend(ncol=2)
+plt.yscale("log")
+plt.tight_layout()
+plt.savefig("./perfiles/alfa.png", dpi=300)
+plt.show()
