@@ -6,6 +6,9 @@ from scipy.interpolate import PchipInterpolator
 r,rho,v,p,T,heat,cool = \
       np.loadtxt('Hydro_ioniz_adv.txt',unpack = True)
 
+mp = 1.6726219e-24 # g
+rho = rho*mp
+v = v/1e5 # cm/s a km/s
 mask = (r >= 0.95) & (r <= 6.0)
 r = r[mask]
 density = rho[mask]

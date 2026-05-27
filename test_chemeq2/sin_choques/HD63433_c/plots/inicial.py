@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import glob
 import os
 
-init_data = np.loadtxt("../inputs/density_profile_Roman.dat", comments="#")
+init_data = np.loadtxt("../inputs/density_profile_ATES.dat", comments="#")
 
 r_init = init_data[:, 0]
 rho_init = init_data[:, 1]
