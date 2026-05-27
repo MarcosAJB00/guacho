@@ -46,7 +46,7 @@ fig_name_lya = 'Lya_line.png'
 abs_file   = ''
 
 r, rho = np.loadtxt("../inputs/density_profile_ATES.dat", comments="#", unpack=True)
-r, T = np.loadtxt("../inputs/temperature_profile_uniform.dat", comments="#", unpack=True)
+r, T = np.loadtxt("../inputs/temperature_profile_ATES.dat", comments="#", unpack=True)
 r, v = np.loadtxt("../inputs/velocity_profile_ATES.dat", comments="#", unpack=True)
 
 Rp = Rstar = rot_period = None

@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=HDcw/oc
 #SBATCH --partition=batch
-#SBATCH --ntasks=1
+#SBATCH --ntasks=10
 #SBATCH --time=24:00:00
 
 # cargar entorno
@@ -10,7 +10,8 @@ module load gcc
 
 # cargar entorno
 source ~/.bashrc
-conda activate guacho13
+conda activate guacho
 
 # ejecutar
 ./1D_test.exe
+#./1D_test_omp.exe

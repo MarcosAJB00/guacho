@@ -254,7 +254,7 @@ program test_1D
     ! -------------------------------------------------------------------
     !$OMP PARALLEL DO                                              &
     !$OMP   DEFAULT(NONE)                                         &
-    !$OMP   SHARED(n_points, tf, ns, T_profile, r,               &
+    !$OMP   SHARED(n_points, tf, T_profile, r,               &
     !$OMP          y0_HI, y0_HII, y0_HeIS, y0_HeIM,              &
     !$OMP          y0_HeII, y0_e, phi_all, y_local)               &
     !$OMP   PRIVATE(j, i, y, T_loc,                              &
