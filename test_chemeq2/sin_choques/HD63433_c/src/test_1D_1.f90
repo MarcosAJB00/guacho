@@ -303,9 +303,12 @@ subroutine phis_rate(FluxHI, FluxHeIS, FluxHeIM, taus, phiHI, phiHeIS, phiHeIM)
   a0_HeIM = 3.59d-18
 
   
-  phiHI   = a0_H*FluxHI*exp(-taus(1))
-  phiHeIS = a0_HeIS*FluxHeIS*exp(-taus(2))
-  phiHeIM = a0_HeIM*FluxHeIM*exp(-taus(3))
+  !phiHI   = a0_H*FluxHI*exp(-taus(1))
+  phiHI   = max(a0_H*FluxHI*exp(-taus(1)), 1e-10)
+  !phiHeIS = a0_HeIS*FluxHeIS*exp(-taus(2))
+  phiHeIS = max(a0_HeIS*FluxHeIS*exp(-taus(2)), 1e-10)
+  !phiHeIM = a0_HeIM*FluxHeIM*exp(-taus(3))
+  phiHeIM = max(a0_HeIM*FluxHeIM*exp(-taus(3)), 1e-10)
 
 end subroutine phis_rate
 
