@@ -49,6 +49,8 @@ r, rho = np.loadtxt("../inputs/density_profile_ATES.dat", comments="#", unpack=T
 r, T = np.loadtxt("../inputs/temperature_profile_ATES.dat", comments="#", unpack=True)
 r, v = np.loadtxt("../inputs/velocity_profile_ATES.dat", comments="#", unpack=True)
 
+v = v*1e5 # km/s a cm/s
+
 Rp = Rstar = rot_period = None
 
 with open(Input_file) as f:
@@ -491,7 +493,7 @@ plt.plot(l_plot_HeTR, convolved_rot_prob_HeTR, label = r'Planet rot. + Inst. con
 plt.xlabel(r"Wavelength [$\AA{}$]", fontsize = 15)
 plt.ylabel(r"T$_{\lambda}$", fontsize = 15)
 plt.xlim([lmin_HeTR*1.0e10, lmax_HeTR*1.0e10])
-plt.ylim([0.99*avg_prob_HeTR.min(),1.02*avg_prob_HeTR.max()])	
+plt.ylim([0.9999*avg_prob_HeTR.min(),1.001*avg_prob_HeTR.max()])	
 plt.legend(loc = 'best', labelspacing = 1)
 plt.xticks(fontsize = 14)
 plt.yticks(fontsize = 14)
@@ -548,7 +550,7 @@ plt.fill_between(np.arange(lA*dlm_ism,lA*dlp_ism,0.01),0, 1.2, \
 plt.xlabel(r"Wavelength [$\AA{}$]", fontsize = 15)
 plt.ylabel(r"T$_{\lambda}$", fontsize = 15)
 plt.xlim([lmin_HI*1.0e10, lmax_HI*1.0e10])
-plt.ylim([0.8*avg_prob_HD.min(),1.1*avg_prob_HD.max()])	
+plt.ylim([0.999*avg_prob_HD.min(),1.001*avg_prob_HD.max()])	
 plt.legend(loc = 'best', labelspacing = 1)
 plt.xticks(fontsize = 14)
 plt.yticks(fontsize = 14)

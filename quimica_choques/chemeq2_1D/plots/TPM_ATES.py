@@ -38,43 +38,20 @@ gray  = '#a0a0a0'			# Color gray for line plot
 # fig_name   = Name of the output figure (leave empty for not saving the figure)
 # abs_file   = Name of the output file with absorption data(leave empty for not saving the file)
 
-
-Input_file = '../inputs/inputs.dat'
-Ioniz_file = '../output/perfiles_finales.dat'
-fig_name_hei = 'HeI_lines.png'
-fig_name_lya = 'Lya_line.png'
+path = '.'  # ATES' files destination folder
+Input_file = path + '/input.inp'
+Hydro_file = path + '/output/Hydro_ioniz_adv.txt'
+Ioniz_file = path + '/output/Ion_species_adv.txt'
+fig_name_hei = ''
+fig_name_lya = ''
 abs_file   = ''
 
-r, rho = np.loadtxt("../inputs/density_profile_Roman.dat", comments="#", unpack=True)
-r, T = np.loadtxt("../inputs/temperature_profile_Roman.dat", comments="#", unpack=True)
-r, v = np.loadtxt("../inputs/velocity_profile_Roman.dat", comments="#", unpack=True)
-
-v = v*1e5 # km/s a cm/s
-
-Rp = Rstar = rot_period = None
-
-with open(Input_file) as f:
-    for line in f:
-
-        if line.startswith("Rp"):
-            Rp = float(line.split()[1].replace("d", "e"))*RJ
-
-        elif line.startswith("Rstar"):
-            R_star = float(line.split("=")[1].split("!")[0].strip())*R_sun
-
-        elif line.startswith("rot_period"):
-            rot_period = float(line.split("=")[1].split("!")[0].strip())
-
-print('Rp/RJ:', Rp/RJ)
-print('R_star/R_sun:', R_star/R_sun)
-print('rot_period:', rot_period, 'days')
-
 # Data not in input_file
-#R_star    = 0.44*R_sun  # Stellar radius
+R_star    = 0.44*R_sun  # Stellar radius
 Instr_res_HeTR = 8e4       # Instrument resolution CARMENES: 80,000 -- GIANO-B: 50,000
 Instr_res_HI = 5e4       # Instrument resolution HST-STIS 100 - 100,000
 # Planet rotation period [days]
-#rot_period = 4.88 # [days]
+rot_period = 4.88 # [days]
 
 # ------------------------------ #
 
@@ -170,11 +147,26 @@ def get_word(string_in,word_number):
 
 # ------------------------- #
 
+# Read useful parameters from the input file of ATES
+with open(Input_file,'r') as f:
+
+	data = f.readline()
+	num = 1
+	while data:
+		data = f.readline()
+		if num == 2:  Rp = float(get_word(data,4))*RJ
+		if num == 3:  Mp = float(get_word(data,4))*MJ
+		if num == 4:  T0 = float(get_word(data,4))
+		if num == 5:  a_orb = float(get_word(data,4))*AU
+		if num == 9:  Mstar = float(get_word(data,5))*M_sun
+		num += 1
+		
+f.close()
+
 # Load profiles
-#r,rho,v,p,T,heat,cool = np.loadtxt(Hydro_file, unpack = True)
-r,nhi,nhii,nhei,nheiTR,nheii,ne = np.loadtxt(Ioniz_file, unpack = True)
-ntot = nhi + nhii + nhei + nheiTR + nheii + ne
-p = ntot*kb*T + rho*v**2.0
+r,rho,v,p,T,heat,cool = np.loadtxt(Hydro_file, unpack = True)
+r,nhi,nhii,nhei,nheii,nheiii,nheiTR = np.loadtxt(Ioniz_file, unpack = True)
+
 # Save inverted profiles
 r_I 	   = -np.flip(r)
 T_I 	   =  np.flip(T)
@@ -390,7 +382,7 @@ for p in range(Grid_Number):
 
 # Integral over the planet's projected area metastable HeI triplet
 for l in range(number_lambda_HeTR):
-	prob_tot_HeTR[l] = np.trapezoid(x = r_grid, y = 2.0*exp_tau_HeTR[:,l]*r_grid)*A_planet/(A_atm - A_planet)
+	prob_tot_HeTR[l] = np.trapz(x = r_grid, y = 2.0*exp_tau_HeTR[:,l]*r_grid)*A_planet/(A_atm - A_planet)
 
 # Do geometric average with star area
 avg_prob_HeTR = ((A_star - A_atm) + (A_atm - A_planet)*prob_tot_HeTR[:])/A_star
@@ -401,7 +393,7 @@ avg_prob_HeTR = avg_prob_HeTR[:]*A_star/(A_star - A_planet)
 
 # Integral over the planet's projected area Hydrogen and Deuterium
 for l in range(number_lambda_HI):
-	prob_tot_HD[l] = np.trapezoid(x = r_grid, y = 2.0*exp_tau_HD[:,l]*r_grid)*A_planet/(A_atm - A_planet)
+	prob_tot_HD[l] = np.trapz(x = r_grid, y = 2.0*exp_tau_HD[:,l]*r_grid)*A_planet/(A_atm - A_planet)
 	               
 # Do geometric average with star area
 avg_prob_HD = ((A_star - A_atm) + (A_atm - A_planet)*prob_tot_HD[:])/A_star
@@ -486,33 +478,23 @@ plt.plot([l_He3_3*1.0e10,l_He3_3*1.0e10], [0.0, 1.1], '--', color = gray)
 
 # Plot the curves of transmission
 plt.plot(l_plot_HeTR, avg_prob_HeTR, '--', label = r'Theoretical T$_{{\lambda}}$ = {} $\%$'.format(round(Tl_HeI3, 2)))
-plt.plot(l_plot_HeTR, convolved_avg_prob_HeTR, '-.', label = r'Instrument conv. T$_{{\lambda}}$ = {} $\%$'.format(round(Tl_HeI3_conv,2)))
-plt.plot(l_plot_HeTR, convolved_rot_prob_HeTR, label = r'Planet rot. + Inst. conv T$_{{\lambda}}$ = {} $\%$'.format(round(Tl_HeI3_conv_rot,2)))
+plt.plot(l_plot_HeTR, convolved_avg_prob_HeTR, '-.', label = 'Instrument conv. T$_{{\lambda}}$ = {} $\%$'.format(round(Tl_HeI3_conv,2)))
+plt.plot(l_plot_HeTR, convolved_rot_prob_HeTR, label = 'Planet rot. + Inst. conv T$_{{\lambda}}$ = {} $\%$'.format(round(Tl_HeI3_conv_rot,2)))
 
 # Axis setup
 plt.xlabel(r"Wavelength [$\AA{}$]", fontsize = 15)
 plt.ylabel(r"T$_{\lambda}$", fontsize = 15)
 plt.xlim([lmin_HeTR*1.0e10, lmax_HeTR*1.0e10])
-plt.ylim([0.9999*avg_prob_HeTR.min(),1.001*avg_prob_HeTR.max()])	
+plt.ylim([0.99*avg_prob_HeTR.min(),1.02*avg_prob_HeTR.max()])	
 plt.legend(loc = 'best', labelspacing = 1)
 plt.xticks(fontsize = 14)
 plt.yticks(fontsize = 14)
 
 # Construct the title based on inputs
-title = (
-    r'Avg. Transm. Prob. with $'
-    + str(Grid_Number)
-    + r'\times'
-    + str(Grid_Number)
-    + r'$ grid points'
-    + ' -- '
-    + str(number_lambda_HeTR)
-    + r' pt in $\lambda$ -- $ '
-    + str(lmin_lbl_HeTR)
-    + r' < \lambda < '
-    + str(lmax_lbl_HeTR)
-    + r'~ \AA{}$'
-)
+title = r'Avg. Transm. Prob. with $' + str(Grid_Number) + \
+         '\\times' + str(Grid_Number) + '$ grid points' + \
+         ' -- ' + str(number_lambda_HeTR) + ' pt in $\lambda$ -- $ ' + \
+         str(lmin_lbl_HeTR) + ' < \lambda < ' + str(lmax_lbl_HeTR) + '~ \AA{}$'
 
 plt.title(title)
 
@@ -536,9 +518,9 @@ plt.plot([lA*1.0e10,lA*1.0e10], [0.0, 1.2], '--', color = gray)
 plt.plot([lD*1.0e10,lD*1.0e10], [0.0, 1.2], '--', color = gray)
 
 # Plot the curves of transmission
-plt.plot(l_plot_HI, avg_prob_HD, '--', label = r'Theoretical T$_{{\lambda}}$ = {} $\%$'.format(round(Tl_HI,2)))
-plt.plot(l_plot_HI, convolved_avg_prob_HD, '-.', label = r'Instrument conv. T$_{{\lambda}}$ = {} $\%$'.format(round(Tl_HI_conv,2)))
-plt.plot(l_plot_HI, convolved_rot_prob_HD, label = r'Planet rot. + Inst. conv. T$_{{\lambda}}$ = {} $\%$'.format(round(Tl_HI_conv_rot,2)))
+plt.plot(l_plot_HI, avg_prob_HD, '--', label = 'Theoretical T$_{{\lambda}}$ = {} $\%$'.format(round(Tl_HI,2)))
+plt.plot(l_plot_HI, convolved_avg_prob_HD, '-.', label = 'Instrument conv. T$_{{\lambda}}$ = {} $\%$'.format(round(Tl_HI_conv,2)))
+plt.plot(l_plot_HI, convolved_rot_prob_HD, label = 'Planet rot. + Inst. conv. T$_{{\lambda}}$ = {} $\%$'.format(round(Tl_HI_conv_rot,2)))
 
 dlm_ism = (1.0 - 3e4/c_light)*1.0e10
 dlp_ism = (1.0 + 3e4/c_light)*1.0e10
@@ -550,26 +532,16 @@ plt.fill_between(np.arange(lA*dlm_ism,lA*dlp_ism,0.01),0, 1.2, \
 plt.xlabel(r"Wavelength [$\AA{}$]", fontsize = 15)
 plt.ylabel(r"T$_{\lambda}$", fontsize = 15)
 plt.xlim([lmin_HI*1.0e10, lmax_HI*1.0e10])
-plt.ylim([0.999*avg_prob_HD.min(),1.002*avg_prob_HD.max()])	
+plt.ylim([0.8*avg_prob_HD.min(),1.1*avg_prob_HD.max()])	
 plt.legend(loc = 'best', labelspacing = 1)
 plt.xticks(fontsize = 14)
 plt.yticks(fontsize = 14)
 
 # Construct the title based on inputs
-title_HD = (
-    r'Avg. Transm. Prob. with $'
-    + str(Grid_Number)
-    + r'\times'
-    + str(Grid_Number)
-    + r'$ grid points'
-    + ' -- '
-    + str(number_lambda_HI)
-    + r' pt in $\lambda$ -- $ '
-    + str(lmin_lbl_HI)
-    + r' < \lambda < '
-    + str(lmax_lbl_HI)
-    + r'~ \AA{}$'
-)
+title_HD = r'Avg. Transm. Prob. with $' + str(Grid_Number) + \
+           '\\times' + str(Grid_Number) + '$ grid points' +  \
+           ' -- ' + str(number_lambda_HI) + ' pt in $\lambda$ -- $ ' + \
+           str(lmin_lbl_HI) + ' < \lambda < ' + str(lmax_lbl_HI) + '~ \AA{}$'
 
 plt.title(title_HD)
 

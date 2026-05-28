@@ -303,12 +303,12 @@ subroutine phis_rate(FluxHI, FluxHeIS, FluxHeIM, taus, phiHI, phiHeIS, phiHeIM)
   a0_HeIM = 3.59d-18
 
   
-  !phiHI   = a0_H*FluxHI*exp(-taus(1))
-  phiHI   = max(a0_H*FluxHI*exp(-taus(1)), 1e-40)
-  !phiHeIS = a0_HeIS*FluxHeIS*exp(-taus(2))
-  phiHeIS = max(a0_HeIS*FluxHeIS*exp(-taus(2)), 1e-40)
-  !phiHeIM = a0_HeIM*FluxHeIM*exp(-taus(3))
-  phiHeIM = max(a0_HeIM*FluxHeIM*exp(-taus(3)), 1e-40)
+  phiHI   = a0_H*FluxHI*exp(-taus(1))
+  !phiHI   = max(a0_H*FluxHI*exp(-taus(1)), 1e-40)
+  phiHeIS = a0_HeIS*FluxHeIS*exp(-taus(2))
+  !phiHeIS = max(a0_HeIS*FluxHeIS*exp(-taus(2)), 1e-40)
+  phiHeIM = a0_HeIM*FluxHeIM*exp(-taus(3))
+  !phiHeIM = max(a0_HeIM*FluxHeIM*exp(-taus(3)), 1e-40)
 
 end subroutine phis_rate
 
@@ -328,9 +328,12 @@ subroutine local_taus(y0, dr, taus_global, taus_loc)
   a0_HeIS = 4.03d-18 !
   a0_HeIM = 3.59d-18 !
 
-  taus_loc(1) = a0_H*y0(1)*dr    + taus_global(1)
-  taus_loc(2) = a0_HeIS*y0(2)*dr + taus_global(2)
-  taus_loc(3) = a0_HeIM*y0(3)*dr + taus_global(3)
+  !taus_loc(1) = a0_H*y0(1)*dr    + taus_global(1)
+  taus_loc(1) = min(a0_H*y0(1)*dr + taus_global(1), 100.d0)
+  !taus_loc(2) = a0_HeIS*y0(2)*dr + taus_global(2)
+  taus_loc(2) = min(a0_HeIS*y0(2)*dr + taus_global(2), 100.d0)
+  !taus_loc(3) = a0_HeIM*y0(3)*dr + taus_global(3)
+  taus_loc(3) = min(a0_HeIM*y0(3)*dr + taus_global(3), 100.d0)
 
 end subroutine local_taus
 
