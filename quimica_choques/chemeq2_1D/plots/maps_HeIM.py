@@ -46,7 +46,7 @@ for i in range(models_num):
     HeIM_sum.append(np.sum(HeIM))
 
     # 2) integral trapezoidal
-    HeIM_trapz.append(np.trapz(HeIM, r))
+    HeIM_trapz.append(np.trapezoid(HeIM, r))
 
 HeIM_sum = np.array(HeIM_sum)
 HeIM_trapz = np.array(HeIM_trapz)
@@ -120,29 +120,36 @@ for i in range(models_num):
     Z_trapz[iy, ix] = HeIM_trapz[i]
 
 # =====================================================
-# 2) Heatmap usando SUM
+# Heatmap SUM
 # =====================================================
 
 plt.figure(figsize=(8,6))
 
 im = plt.imshow(
-    Z_sum,
+    Z_sum/norm_sum,
     origin='lower',
-    aspect='auto',
-    extent=[
-        u0_unique.min(),
-        u0_unique.max(),
-        n0_unique.min(),
-        n0_unique.max()
-    ]
+    aspect='auto'
 )
 
 plt.colorbar(im, label='HeIM total (sum)')
 
+plt.xticks(
+    np.arange(len(u0_unique)),
+    u0_unique.astype(int)
+)
+
+plt.yticks(
+    np.arange(len(n0_unique)),
+    [f'{x:.0e}' for x in n0_unique]
+)
+
 plt.xlabel(r'$u_0$ [km/s]')
 plt.ylabel(r'$n_0$ [cm$^{-3}$]')
 
-plt.title('Grid de modelos - SUM')
+plt.title(
+    f'Max SUM: n0={n0[index_max_sum]:.1e}, '
+    f'u0={u0[index_max_sum]:.1f}'
+)
 
 plt.savefig(
     "grid_HeIM_sum.png",
@@ -151,7 +158,6 @@ plt.savefig(
 )
 
 plt.show()
-
 # =====================================================
 # 3) Heatmap usando TRAPEZOID
 # =====================================================
@@ -159,23 +165,30 @@ plt.show()
 plt.figure(figsize=(8,6))
 
 im = plt.imshow(
-    Z_trapz,
+    Z_trapz/norm_trapz,
     origin='lower',
-    aspect='auto',
-    extent=[
-        u0_unique.min(),
-        u0_unique.max(),
-        n0_unique.min(),
-        n0_unique.max()
-    ]
+    aspect='auto'
 )
 
 plt.colorbar(im, label='HeIM total (trapz)')
 
+plt.xticks(
+    np.arange(len(u0_unique)),
+    u0_unique.astype(int)
+)
+
+plt.yticks(
+    np.arange(len(n0_unique)),
+    [f'{x:.0e}' for x in n0_unique]
+)
+
 plt.xlabel(r'$u_0$ [km/s]')
 plt.ylabel(r'$n_0$ [cm$^{-3}$]')
 
-plt.title('Grid de modelos - TRAPEZOID')
+plt.title(
+    f'Max TRAPZ: n0={n0[index_max_trapz]:.1e}, '
+    f'u0={u0[index_max_trapz]:.1f}'
+)
 
 plt.savefig(
     "grid_HeIM_trapz.png",

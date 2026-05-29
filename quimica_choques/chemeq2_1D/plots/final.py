@@ -85,7 +85,7 @@ for i in range(models_num):
     fig.tight_layout()
 
     fig.savefig(
-        f"./perfiles/species/model_{int(model[i])}.png",
+        f"./perfiles/species/model_{int(model[i])}_species.png",
         dpi=300
     )
 
@@ -112,7 +112,7 @@ for i in range(models_num):
     fig.tight_layout()
 
     fig.savefig(
-        f"./perfiles/phis/model_{int(model[i])}.png",
+        f"./perfiles/phis/model_{int(model[i])}_phis.png",
         dpi=300
     )
 
@@ -138,7 +138,7 @@ for i in range(models_num):
     fig.tight_layout()
 
     fig.savefig(
-        f"./perfiles/taus/model_{int(model[i])}.png",
+        f"./perfiles/taus/model_{int(model[i])}_taus.png",
         dpi=300
     )
 
