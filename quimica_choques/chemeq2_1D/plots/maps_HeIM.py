@@ -57,27 +57,40 @@ HeIM_trapz = np.array(HeIM_trapz)
 
 plt.figure(figsize=(8,6))
 
-plt.plot(model, HeIM_sum, marker='o', color='blue', label='HeIM total (sum)')
-plt.plot(model, HeIM_trapz, marker='s', color='red', label='HeIM total (trapz)')
+norm_sum = np.sum(HeIM_sum)
+norm_trapz = np.sum(HeIM_trapz)
+plt.plot(model, HeIM_sum/norm_sum, marker='o', color='blue', label='HeIM total (sum)')
+plt.plot(model, HeIM_trapz/norm_trapz, marker='s', color='red', label='HeIM total (trapz)')
 
 plt.xlabel('Modelo')
 plt.ylabel('HeIM total')
 plt.grid()
 plt.legend()
 
-index_max = np.argmax(HeIM_sum)
+index_max_sum = np.argmax(HeIM_sum)
+index_max_trapz = np.argmax(HeIM_trapz)
 
-T0_max = T0[index_max]
-n0_max = n0[index_max]
-u0_max = u0[index_max]
-y0_max = y0[index_max]
+T0_max_sum = T0[index_max_sum]
+n0_max_sum = n0[index_max_sum]
+u0_max_sum = u0[index_max_sum]
+y0_max_sum = y0[index_max_sum]
+
+T0_max_trapz = T0[index_max_trapz]
+n0_max_trapz = n0[index_max_trapz]
+u0_max_trapz = u0[index_max_trapz]
+y0_max_trapz = y0[index_max_trapz]
 
 plt.title(
-    f'Best: Model {int(model[index_max])}, '
-    f'T0={T0_max:.1e}, '
-    f'n0={n0_max:.1e}, '
-    f'u0={u0_max:.1f} km/s, '
-    f'y0={y0_max:.1e}'
+    f'Best (sum): Model {int(model[index_max_sum])}, '
+    f'T0={T0_max_sum:.1e}, '
+    f'n0={n0_max_sum:.1e}, '
+    f'u0={u0_max_sum:.1f} km/s, '
+    f'y0={y0_max_sum:.1e}\n'
+    f'Best (trapz): Model {int(model[index_max_trapz])}, '
+    f'T0={T0_max_trapz:.1e}, '
+    f'n0={n0_max_trapz:.1e}, '
+    f'u0={u0_max_trapz:.1f} km/s, '
+    f'y0={y0_max_trapz:.1e}' 
 )
 
 plt.savefig(
