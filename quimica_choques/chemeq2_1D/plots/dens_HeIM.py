@@ -34,5 +34,12 @@ plt.xlabel('Modelo')
 plt.ylabel('Densidad total de HeIM')
 plt.title('Densidad total de HeIM para cada modelo')
 plt.grid()
+index_max = np.argmax(HeIM_dens_tot)
+T0_max = T0[index_max]
+n0_max = n0[index_max]
+u0_max = u0[index_max]/1e5 # Convertir a km/s
+y0_max = y0[index_max]
+plt.title(f'Best: Model {int(model[index_max])}, T0={T0_max:.1e}, n0={n0_max:.1e}, u0={u0_max:.1e}, y0={y0_max:.1e}')
 plt.savefig("dens_HeIM.png", dpi=300, bbox_inches='tight')
 plt.show()
+

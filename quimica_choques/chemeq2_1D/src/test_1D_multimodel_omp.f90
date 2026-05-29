@@ -185,7 +185,8 @@ contains
       tau_global = (/ 0.d0, 0.d0, 0.d0 /)
 
       do j = 1, n_points
-        ic = n_points - j + 1
+        !ic = n_points - j + 1 ! Barrer de afuera hacia adentro
+        ic = j                   ! Barrer de adentro hacia afuera
 
         epsmn  = 1e-5
         epsmx  = 0.0d0
@@ -241,7 +242,8 @@ contains
     tau_global = (/ 0.d0, 0.d0, 0.d0 /)
 
     do j = 1, n_points
-      ic = n_points - j + 1
+      !ic = n_points - j + 1 ! Barrer de afuera hacia adentro
+      ic = j                 ! Barrer de adentro hacia afuera
 
       y0 = (/ y0_HI(ic), y0_HeIS(ic), y0_HeIM(ic) /)
       call local_taus(y0, dr, tau_global, tau_loc)
@@ -299,9 +301,9 @@ contains
     a0_HeIS = 4.03d-18
     a0_HeIM = 3.59d-18
 
-    taus_loc(1) = a0_H    * y0(1) * dr + taus_global(1)
-    taus_loc(2) = a0_HeIS * y0(2) * dr + taus_global(2)
-    taus_loc(3) = a0_HeIM * y0(3) * dr + taus_global(3)
+    taus_loc(1) = min(a0_H    * y0(1) * dr + taus_global(1), 140.d0)
+    taus_loc(2) = min(a0_HeIS * y0(2) * dr + taus_global(2), 140.d0)
+    taus_loc(3) = min(a0_HeIM * y0(3) * dr + taus_global(3), 140.d0)
 
   end subroutine local_taus
 
