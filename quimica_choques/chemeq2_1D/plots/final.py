@@ -53,12 +53,15 @@ for i in range(models_num):
 
     # Columnas
     r = data[:, 0]
-
     X = data[:, 1:1+ns]
-
     phis = data[:, 1+ns:1+ns+3]
-
     taus = data[:, 1+ns+3:1+ns+6]
+
+
+    #sort_idx = np.argsort(r)
+    #r = r[sort_idx]
+    #phis = phis[sort_idx, :]
+    #taus = taus[sort_idx, :]
 
     u0[i] = u0[i] / 1.0e5  # Convertir de cm/s a km/s
 

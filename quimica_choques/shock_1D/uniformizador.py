@@ -32,6 +32,9 @@ for i in range(len(model_numbers)):
     density_uniform = 10**dens_interp(x_uniform)
     temperature_uniform = temp_interp(x_uniform)
 
+    #print(f'Model {int(model_numbers[i])} x.min(): {x.min()}')
+    #print(f'Model {int(model_numbers[i])} x_uniform.min(): {x_uniform.min()}')
+
 
     np.savetxt(f'./uniform_output/model_{int(model_numbers[i])}.dat',
         np.column_stack((x_uniform, density_uniform, temperature_uniform)),
