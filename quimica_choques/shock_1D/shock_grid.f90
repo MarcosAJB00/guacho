@@ -9,22 +9,22 @@ program shock_grid
   character(len=100) :: filename
   
   integer, parameter :: n0_points = 2
-  integer, parameter :: T0_points = 2
-  integer, parameter :: u0_points = 2
-  integer, parameter :: y0_points = 2
+  integer, parameter :: T0_points = 1
+  integer, parameter :: u0_points = 4
+  integer, parameter :: y0_points = 1
 
   real(kind=8) :: n0_grid(n0_points), T0_grid(T0_points)
   real(kind=8) :: u0_grid(u0_points), y0_grid(y0_points)
 
   !n0_grid = (/ 1.0d2, 1.0d3, 1.0d4, 1.0d5 /) ! cm^-3 
   !T0_grid = (/ 100.0d0, 500.0d0, 1000.0d0, 5000.0d0 /) ! K
-  !u0_grid = (/ 10.0d0*1.0d5, 50.0d0*1.0d5, 100.0d0*1.0d5, 200.0d0*1.0d5 /) ! cm/s
+  u0_grid = (/ 10.0d0*1.0d5, 50.0d0*1.0d5, 100.0d0*1.0d5, 200.0d0*1.0d5 /) ! cm/s
   !y0_grid = (/ 1.0d-4, 1.0d-3, 1.0d-2, 1.0d-1 /) ! fraccion de ionizacion inicial
 
   n0_grid = (/ 100.0d0, 1.0d3 /) ! cm^-3
-  T0_grid = (/ 100.0d0, 1.0d3 /) ! K
-  u0_grid = (/ 50.0d0*1.0d5, 100.0d0*1.0d5 /) ! cm/s
-  y0_grid = (/ 1.0d-4, 1.0d-2 /) ! fraccion de ionizacion inicial
+  T0_grid = (/ 100.0d0 /) ! K
+  !u0_grid = (/ 50.0d0*1.0d5, 100.0d0*1.0d5 /) ! cm/s
+  y0_grid = (/ 1.0d-4 /) ! fraccion de ionizacion inicial
   
   n_model = 0
 
