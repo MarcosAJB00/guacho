@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import PchipInterpolator
 
-models = np.loadtxt('./output/model_list.dat', skiprows=1)
+models = np.loadtxt('./output_1/model_list.dat', skiprows=1)
 model_numbers = models[:,0]
 
 fig_rho, ax_rho = plt.subplots()
@@ -12,7 +12,7 @@ for i in range(len(model_numbers)):
 
     print(f'Processing model {int(model_numbers[i])} of {len(model_numbers)}')
     data = np.loadtxt(
-        f'./output/output_{int(model_numbers[i])}.dat',
+        f'./output_1/output_{int(model_numbers[i])}.dat',
         skiprows=1
     )
     
@@ -36,7 +36,7 @@ for i in range(len(model_numbers)):
     #print(f'Model {int(model_numbers[i])} x_uniform.min(): {x_uniform.min()}')
 
 
-    np.savetxt(f'./uniform_output/model_{int(model_numbers[i])}.dat',
+    np.savetxt(f'./uniform_output_1/model_{int(model_numbers[i])}.dat',
         np.column_stack((x_uniform, density_uniform, temperature_uniform)),
         header='r[R_p] density[g/cm^3] temperature[K]',
         fmt='%.10e'

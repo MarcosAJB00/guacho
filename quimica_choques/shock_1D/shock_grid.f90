@@ -1,32 +1,34 @@
 program shock_grid 
   implicit none 
-  real(kind=8), parameter :: chiH = 2.179d-11   ! erg,  energia de ionizacion del H
+  real(kind=8), parameter :: chiH = 2.179d-11   ! erg,  energia de ionizacion del H (13.6eV)
   real(kind=8), parameter :: kB   = 1.38d-16    ! erg/K
   real(kind=8), parameter :: mp   = 1.67d-24    ! g
   real(kind=8), parameter :: mu   = 1.3d0       ! masa media (1 para H puro, 1.3 para 10% He)
-  real(kind=8), parameter :: T_corte = 1.0d3 ! K, temperatura de corte para terminar el modelo
+  real(kind=8), parameter :: T_corte = 1.0d2 ! K, temperatura de corte para terminar el modelo
   integer :: i, j, z, k, n_model
   character(len=100) :: filename
   
-  integer, parameter :: n0_points = 4
+  integer, parameter :: n0_points = 5
   integer, parameter :: T0_points = 1
-  integer, parameter :: u0_points = 12
-  integer, parameter :: y0_points = 1
+  integer, parameter :: u0_points = 6
+  integer, parameter :: y0_points = 4
 
   real(kind=8) :: n0_grid(n0_points), T0_grid(T0_points)
   real(kind=8) :: u0_grid(u0_points), y0_grid(y0_points)
 
   !n0_grid = (/ 1.0d2, 1.0d3, 1.0d4, 1.0d5 /) ! cm^-3 
   !T0_grid = (/ 100.0d0, 500.0d0, 1000.0d0, 5000.0d0 /) ! K
-  u0_grid = (/ 10.0d0*1.0d5, 25.0d0*1.0d5, 50.0d0*1.0d5, 75.0d0*1.0d5, &
-             100.0d0*1.0d5, 125.0d0*1.0d5, 150.0d0*1.0d5, 175.0d0*1.0d5,&
-             200.0d0*1.0d5, 300.0d0*1.0d5, 400.0d0*1.0d5, 500.0d0*1.0d5 /) ! cm/s
+  u0_grid = (/  5.0d0*1.0d5, 7.5d0*1.0d5, 10.0d0*1.0d5, &
+                12.5d0*1.0d5, 15.0d0*1.0d5, 20.0d0*1.0d5 /) ! cm/s
+             
+             !, 150.0d0*1.0d5, 175.0d0*1.0d5,&
+             !200.0d0*1.0d5, 300.0d0*1.0d5, 400.0d0*1.0d5, 500.0d0*1.0d5 /) ! cm/s
   !y0_grid = (/ 1.0d-4, 1.0d-3, 1.0d-2, 1.0d-1 /) ! fraccion de ionizacion inicial
 
-  n0_grid = (/ 10.0d0, 100.0d0, 500.0d0, 1.0d3 /) ! cm^-3
-  T0_grid = (/ 100.0d0 /) ! K
+  n0_grid = (/ 50.0d6, 100.0d6, 150.0d6, 200.0d6, 500.0d6 /) ! cm^-3
+  T0_grid = (/ 1000.0d0 /) ! K
   !u0_grid = (/ 50.0d0*1.0d5, 100.0d0*1.0d5 /) ! cm/s
-  y0_grid = (/ 1.0d-4 /) ! fraccion de ionizacion inicial
+  y0_grid = (/ 0.9d0, 1.0d-1, 1.0d-2, 1.0d-3  /) ! fraccion de ionizacion inicial
   
   n_model = 0
 
@@ -116,7 +118,7 @@ subroutine run_model(y0i, n0i, u0i, T0i, model_number)
 
   ! Otras condiciones iniciales y variables necesarias para el modelo
   x        = 0.0d0
-  dx       = 1.0d9   ! cm, paso inicial
+  dx       = 1.0d3   ! cm, paso inicial
   G        = 0.0d0   ! calentamiento 
 
   ! Perdida de energia inicial
@@ -128,8 +130,8 @@ subroutine run_model(y0i, n0i, u0i, T0i, model_number)
   ! Guardo las condiciones iniciales
   write(filename,'(A,I0,A)') './output/output_', model_number, '.dat'
   open(20, file=filename, status='replace', action='write')
-  write(20,'(A)') '# x[cm]  rho[g/cm^3]   T[K] '
-  write(20,*) x, rho, T0i
+  write(20,'(A)') '# x[cm]  rho[g/cm^3]   T[K]    y    n[cm^-3]    u[cm/s]    P[dyn/cm^2]    h[erg/g]    L[dyn/cm^3]'
+  write(20,*) x, rho, T0i, y, n, u, P, h, L
 
   contador = 0
   !Si mi temperatura inicial es mayor a la de corte, 
@@ -187,7 +189,7 @@ subroutine run_model(y0i, n0i, u0i, T0i, model_number)
       + n**2 * y*(6.1d-19)*(T**(-0.63d0))                     &
               *(1.0d0 - exp(-(T/1.0d5)**1.63d0))
 
-    write(20,*) x, rho, T
+    write(20,*) x, rho, T, y, n, u, P, h, L
 
   end do
   

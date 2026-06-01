@@ -1,22 +1,18 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import glob
 
 # =========================
 # Paths
 # =========================
 
 path = "../output/"
-models = np.loadtxt(
-    "../../shock_1D/output/model_list.dat", comments="#"
-)
 
-model = models[:, 0]
-T0 = models[:, 1]
-n0 = models[:, 2]
-u0 = models[:, 3]  
-y0 = models[:, 4]
-models_num = len(model)
+# Buscar todos los modelos existentes
+files = sorted(glob.glob(path + "final_model_*.dat"))
+
+print(f"Se encontraron {len(files)} modelos")
 
 # =========================
 # Config
@@ -25,40 +21,55 @@ models_num = len(model)
 ns = 6
 
 Species_names = [
-    "HI", "HII",
-    "HeIS", "HeIM",
-    "HeII", "e-"
+    "HI",
+    "HII",
+    "HeIS",
+    "HeIM",
+    "HeII",
+    "e-"
 ]
 
 phi_tau_names = [
-    "HI", "HeIS", "HeIM"
+    "HI",
+    "HeIS",
+    "HeIM"
 ]
 
-# Crear carpetas si no existen
+# Crear carpetas
 os.makedirs("./perfiles/species", exist_ok=True)
 os.makedirs("./perfiles/phis", exist_ok=True)
 os.makedirs("./perfiles/taus", exist_ok=True)
 
 # =========================
-# Loop sobre modelos
+# Loop sobre archivos
 # =========================
 
-for i in range(models_num):
+for filename in files:
 
-    filename = f"{path}final_model_{int(model[i])}.dat"
+    model_id = os.path.basename(filename)
+    model_id = model_id.replace("final_model_", "")
+    model_id = model_id.replace(".dat", "")
 
     print(f"Procesando archivo: {filename}")
 
     data = np.loadtxt(filename, comments="#")
 
+    # Verificación mínima
+    if data.ndim == 1:
+        print(f"Archivo {filename} vacío o con una sola fila. Saltando.")
+        continue
+
+    # =====================
     # Columnas
+    # =====================
+
     r = data[:, 0]
+
     X = data[:, 1:1+ns]
+
     phis = data[:, 1+ns:1+ns+3]
+
     taus = data[:, 1+ns+3:1+ns+6]
-
-
-    u0[i] = u0[i] / 1.0e5  # Convertir de cm/s a km/s
 
     # =====================
     # 1) Species
@@ -70,17 +81,18 @@ for i in range(models_num):
         ax.plot(r, X[:, j], label=Species_names[j])
 
     ax.set_xlabel("Distancia [cm]")
-    ax.set_ylabel("Densidad numerica")
+    ax.set_ylabel("Densidad numérica")
     ax.set_yscale("log")
-    ax.set_title(f"Modelo {int(model[i])}: T0={T0[i]:.1e} K, n0={n0[i]:.1e} cm^-3, u0={u0[i]:.1e} km/s, y0={y0[i]:.1e}")
-    ax.grid(True)
 
+    ax.set_title(f"Modelo {model_id}")
+
+    ax.grid(True)
     ax.legend()
 
     fig.tight_layout()
 
     fig.savefig(
-        f"./perfiles/species/model_{int(model[i])}_species.png",
+        f"./perfiles/species/model_{model_id}_species.png",
         dpi=300
     )
 
@@ -98,16 +110,16 @@ for i in range(models_num):
     ax.set_xlabel("Distancia [cm]")
     ax.set_ylabel("Phi")
     ax.set_yscale("log")
-    ax.set_title(f"Modelo {int(model[i])}: T0={T0[i]:.1e} K, n0={n0[i]:.1e} cm^-3, u0={u0[i]:.1e} km/s, y0={y0[i]:.1e}")
+
+    ax.set_title(f"Modelo {model_id}")
 
     ax.grid(True)
-
     ax.legend()
 
     fig.tight_layout()
 
     fig.savefig(
-        f"./perfiles/phis/model_{int(model[i])}_phis.png",
+        f"./perfiles/phis/model_{model_id}_phis.png",
         dpi=300
     )
 
@@ -125,16 +137,19 @@ for i in range(models_num):
     ax.set_xlabel("Distancia [cm]")
     ax.set_ylabel("Tau")
     ax.set_yscale("log")
-    ax.set_title(f"Modelo {int(model[i])}: T0={T0[i]:.1e} K, n0={n0[i]:.1e} cm^-3, u0={u0[i]:.1e} km/s, y0={y0[i]:.1e}")
-    ax.grid(True)
 
+    ax.set_title(f"Modelo {model_id}")
+
+    ax.grid(True)
     ax.legend()
 
     fig.tight_layout()
 
     fig.savefig(
-        f"./perfiles/taus/model_{int(model[i])}_taus.png",
+        f"./perfiles/taus/model_{model_id}_taus.png",
         dpi=300
     )
 
     plt.close(fig)
+
+print("Listo.")

@@ -19,7 +19,7 @@ program shock_grid
   !44   100.00000000000000        1000.0000000000000        17500000.000000000        1.0000000000000000E-004
   T0_grid = (/ 100.0d0 /) ! K
   n0_grid = (/ 1000.0d0 /) ! cm^-3
-  u0_grid = (/ 175.0d0*1.0d5/) ! cm/s
+  u0_grid = (/ 500.0d0*1.0d5/) ! cm/s
   y0_grid = (/ 1.0d-4 /) ! fraccion de ionizacion inicial
   
   n_model = 0
@@ -110,7 +110,7 @@ subroutine run_model(y0i, n0i, u0i, T0i, model_number)
 
   ! Otras condiciones iniciales y variables necesarias para el modelo
   x        = 0.0d0
-  dx       = 1.0d9   ! cm, paso inicial
+  dx       = 1.0d8   ! cm, paso inicial
   G        = 0.0d0   ! calentamiento 
 
   ! Perdida de energia inicial

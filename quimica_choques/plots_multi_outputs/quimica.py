@@ -6,16 +6,22 @@ import os
 # Paths
 # =========================
 
-path = "../output/"
-models = np.loadtxt(
-    "../../shock_1D/output/model_list.dat", comments="#"
+path = "../chemeq2_1D/output/"
+models_0 = np.loadtxt(
+    "../shock_1D/output/model_list.dat", comments="#"
 )
 
-model = models[:, 0]
-T0 = models[:, 1]
-n0 = models[:, 2]
-u0 = models[:, 3]  
-y0 = models[:, 4]
+path_1 = "../chemeq2_1D_1/output/"
+
+models_1 = np.loadtxt(
+    "../shock_1D/output_1/model_list.dat", comments="#"
+)
+
+model = np.concatenate([models_0[:, 0], models_1[:, 0]])
+T0 = np.concatenate([models_0[:, 1], models_1[:, 1]])
+n0 = np.concatenate([models_0[:, 2], models_1[:, 2]])
+u0 = np.concatenate([models_0[:, 3], models_1[:, 3]])
+y0 = np.concatenate([models_0[:, 4], models_1[:, 4]])
 models_num = len(model)
 
 # =========================
@@ -45,7 +51,10 @@ os.makedirs("./perfiles/taus", exist_ok=True)
 
 for i in range(models_num):
 
-    filename = f"{path}final_model_{int(model[i])}.dat"
+    if i < len(models_0):
+        filename = f"{path}final_model_{int(model[i])}.dat"
+    else:
+        filename = f"{path_1}final_model_{int(model[i])}.dat"
 
     print(f"Procesando archivo: {filename}")
 
@@ -56,7 +65,6 @@ for i in range(models_num):
     X = data[:, 1:1+ns]
     phis = data[:, 1+ns:1+ns+3]
     taus = data[:, 1+ns+3:1+ns+6]
-
 
     u0[i] = u0[i] / 1.0e5  # Convertir de cm/s a km/s
 

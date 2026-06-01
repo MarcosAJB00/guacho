@@ -3,9 +3,15 @@ import matplotlib.pyplot as plt
 
 models = np.loadtxt('./output/model_list.dat', skiprows=1)
 model_numbers = models[:,0]
+T0_values = models[:,1]
+n0_values = models[:,2]
+u0_values = models[:,3]
+y0_values = models[:,4]
 
 fig_rho, ax_rho = plt.subplots()
 fig_T, ax_T = plt.subplots()
+
+Rjup = 7.1492e9 # cm
 
 for i in range(len(model_numbers)):
 
@@ -13,16 +19,21 @@ for i in range(len(model_numbers)):
         f'./output/output_{int(model_numbers[i])}.dat',
         skiprows=1
     )
-
-    x = data[:,0]
+    
+    x = data[:,0]/Rjup
     rho = data[:,1]
     T = data[:,2]
     
     mp = 1.67e-24 # g
-    ax_rho.plot(x, rho/mp, label=f'Model {int(model_numbers[i])}')
-    ax_T.plot(x, T, label=f'Model {int(model_numbers[i])}')
 
-ax_rho.set_xlabel('x [cm]')
+    if u0_values[i] == 5.0*1.0e5:
+        ax_rho.plot(x, rho/mp, label=f'Model {int(model_numbers[i])}', linestyle='--')
+        ax_T.plot(x, T, label=f'Model {int(model_numbers[i])}', linestyle='--')
+    #else:
+        #ax_rho.plot(x, rho/mp, label=f'Model {int(model_numbers[i])}')
+        #ax_T.plot(x, T, label=f'Model {int(model_numbers[i])}')
+
+ax_rho.set_xlabel('x [Rjup]')
 ax_rho.set_ylabel('rho [1/cm^3]')
 ax_rho.set_yscale('log')
 ax_rho.set_xscale('log')
@@ -30,7 +41,7 @@ ax_rho.grid(True, which='both', ls='--')
 ax_rho.set_title('Density profiles')
 #ax_rho.legend()
 
-ax_T.set_xlabel('x [cm]')
+ax_T.set_xlabel('x [Rjup]')
 ax_T.set_ylabel('T [K]')
 ax_T.set_yscale('log')
 ax_T.set_xscale('log')
