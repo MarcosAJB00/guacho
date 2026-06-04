@@ -1,0 +1,6 @@
+En este caso barrimos los siguientes parametros iniciales del viento planetario:
+
+- T0 = (1000,1500, 2000) K
+- u0 = (8,9,10,11,12,13,14,15,16,17,18,19,20,21,22) Km/s
+- y0 = (0.95)
+- n0 = (5.0e6) 1/cm3 --> rho de 1e-17 
