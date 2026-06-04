@@ -113,11 +113,16 @@ plt.tight_layout()
 plt.savefig("./perfiles/inicial_final.png", dpi=300)
 plt.show()
 
+data_T = np.loadtxt('../inputs/temperature_profile_ATES.dat', skiprows=1)
+r_T = data_T[:, 0]
+T = data_T[:, 1]
+
 plt.figure(figsize=(8,6))
 # ---- perfiles finales (sólido) ----
+ax1 = plt.gca()
 for s in range(ns):
     sp = Species_names[s]
-    plt.plot(
+    ax1.plot(
         r_sorted,
         X_f_sorted[s, :],
         '-',
@@ -126,15 +131,27 @@ for s in range(ns):
         label=f"{sp} final"
     )
 
-plt.xlabel("Radio (Rp)")
-plt.ylabel("Densidad numerica")
-plt.yscale("log")
-#plt.xlim(0.95, 10.0)
+# ---- temperatura ----
+ax2 = ax1.twinx()
 
-plt.grid(True, which='both', linestyle='--', linewidth=0.5, alpha=0.7)
-plt.legend(ncol=2)
+ax2.plot(r_T, T, color='k', lw=2, ls=':', label='T')
+
+ax2.set_ylabel('Temperatura (K)', color='k')
+ax2.tick_params(axis='y', labelcolor='k')
+ax2.set_yscale("log")
+
+ax1.set_xlabel("Radio (Rp)")
+ax1.set_ylabel("Densidad numerica")
+ax1.set_yscale("log")
+ax1.set_xlim(0.95, r_sorted[-1])
+ax1.grid(True, which='both', linestyle='--', linewidth=0.5, alpha=0.7)
+
+# leyenda conjunta
+lines1, labels1 = ax1.get_legend_handles_labels()
+lines2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(lines1 + lines2, labels1 + labels2, ncol=2)
+
 plt.tight_layout()
-plt.xlim(0.95, r_sorted[-1])
 plt.savefig("./perfiles/final.png", dpi=300)
 plt.show()
 
@@ -227,21 +244,4 @@ plt.legend(ncol=2)
 plt.yscale("log")
 plt.tight_layout()
 plt.savefig("./perfiles/dest_He.png", dpi=300)
-plt.show()
-
-plt.figure(figsize=(8,6))
-nheim_f = X_f_sorted[3, :]
-nheis_f = X_f_sorted[2, :]
-nheim_i = X_i_sorted[3, :]
-nheis_i = X_i_sorted[2, :]
-plt.plot(r_sorted, nheim_f/nheis_f, "-", color='blue', lw=2, label="HeIM/HeIS final")
-plt.plot(r_sorted, nheim_i/nheis_i, "--", color='red', lw=2, label="HeIM/HeIS initial")
-plt.grid(True, which='both', linestyle='--', linewidth=0.5, alpha=0.7)
-plt.xlabel("Radio (Rp)")
-plt.ylabel("HeIM/HeIS")
-plt.xlim(0.95, r_sorted[-1])
-plt.legend(ncol=2)
-plt.yscale("log")
-plt.tight_layout()
-plt.savefig("./perfiles/alfa.png", dpi=300)
 plt.show()
