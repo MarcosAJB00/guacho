@@ -11,7 +11,7 @@ python perfil_radial_final.py
 python phis_taus.py
 
 # lista de inputs a usar
-INPUTS=(10 200 500 700 900 1000)
+INPUTS=(10 100 250 500 750 900 1000)
 
 # loop
 for i in "${INPUTS[@]}"

@@ -14,32 +14,35 @@ evtoerg = 1.602e-12
 Lsun = 3.826e33     # erg/s
 
 # =========================
-# PLANETA: HD 209458b
+# PLANETA: HD 63433c
 # =========================
-a = 0.04747 * au   # distancia orbital
+a_p = 0.1458  * au   # distancia orbital
+a_spec = 1.0 * au     # distancia para el espectro (1 AU)
 
 # =========================
 # LEER ESPECTRO
 # =========================
 # archivo: wavelength[nm], L_lambda[Lsun]
 #wvl_nm, L_lambda_Lsun = np.loadtxt('lxuvdata_min_fullspectra.dat', unpack=True, skiprows=1)
-wvl, F_lambda = np.loadtxt('../../../../spectrum/HP11_spectrum_beni_scaled.dat', unpack=True, skiprows=1)
+wvl, F_lambda = np.loadtxt('dbf11_1AU.txt', unpack=True, skiprows=13)
 # conversiones
 #wvl = wvl_nm * 10.0              # nm → Angstrom
 #L_lambda = L_lambda_Lsun * Lsun  # → erg/s
 
 # flujo en el planeta
-#F_lambda = L_lambda / (4 * np.pi * a**2)   # erg/s/cm2/A
+F_lambda = F_lambda * (a_spec / a_p)**2  # ajustar por distancia
 
 # =========================
 # PLOT ESPECTRO
 # =========================
 plt.figure()
 plt.yscale('log')
-plt.plot(wvl, F_lambda)
+plt.plot(wvl, F_lambda, label=f'Flux at {a_p/au:.3f} AU')
+plt.plot(wvl, F_lambda*(a_p/a_spec)**2, label=f'Flux at {a_spec/au:.3f} AU')
 plt.xlabel('Wavelength [A]')
 plt.ylabel('Flux [erg s$^{-1}$ cm$^{-2}$ A$^{-1}$]')
-plt.title('Flux at planet')
+plt.title('Flux at HD 63433c')
+plt.legend()
 plt.savefig('spectrum.png', dpi=300)
 plt.show()
 
@@ -50,17 +53,17 @@ plt.show()
 # X-ray [0.1–100 Å]
 mask_x = (wvl > 0.1) & (wvl < 100)
 Fx = integrate.simpson(F_lambda[mask_x], wvl[mask_x])
-Lx = 4*np.pi*a**2 * Fx
+Lx = 4*np.pi*a_p**2 * Fx
 
 # EUV [100–912 Å]
 mask_euv = (wvl > 100) & (wvl < 912)
 Feuv = integrate.simpson(F_lambda[mask_euv], wvl[mask_euv])
-Leuv = 4*np.pi*a**2 * Feuv
+Leuv = 4*np.pi*a_p**2 * Feuv
 
 # XEUV [0.1–912 Å]
 mask_xeuv = (wvl > 0.1) & (wvl < 912)
 Fxeuv = integrate.simpson(F_lambda[mask_xeuv], wvl[mask_xeuv])
-Lxeuv = 4*np.pi*a**2 * Fxeuv
+Lxeuv = 4*np.pi*a_p**2 * Fxeuv
 
 print('Fx   =', Fx, 'erg/s/cm2')
 print('Lx   =', Lx, 'erg/s')

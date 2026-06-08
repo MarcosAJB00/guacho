@@ -3,17 +3,20 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import PchipInterpolator
 
 
-r,rho,v,p,T,heat,cool = \
-      np.loadtxt('../../Hydro_ioniz.txt',unpack = True)
+data = np.loadtxt('profiles_Z_physical_HD63433c.csv', delimiter=',', skiprows=1)
 
-mp = 1.6726219e-24 # g
-rho = rho*mp
-v = v/1e5 # cm/s a km/s
-mask = (r >= 1.05) & (r <= 9.0)
-r = r[mask]
-density = rho[mask]/10.0
-temperature = T[mask]
-velocity = v[mask]
+r = data[:, 0] #en Rp 
+density = data[:, 1] # en g/cm^3
+pressure = data[:, 2] # en dyn/cm^2
+temperature = data[:, 3] # en K
+tau = data[:, 4]
+velocity = data[:, 5] # en Km/s
+
+mask = (r >= -6.0) & (r <= -0.95)
+r = np.abs(r[mask])
+density = density[mask]
+temperature = temperature[mask]
+velocity = velocity[mask]
 
 # Ordenar por radio creciente
 sort_idx = np.argsort(r)
@@ -37,19 +40,19 @@ density_uniform = 10**dens_interp(r_uniform)
 temperature_uniform = temp_interp(r_uniform)
 velocity_uniform = vel_interp(r_uniform)
 
-np.savetxt('density_profile_ATES.dat',
+np.savetxt('density_profile_Roman.dat',
     np.column_stack((r_uniform, density_uniform)),
     header='r[R_p] density[g/cm^3]',
     fmt='%.10e'
 )
 
-np.savetxt('temperature_profile_ATES.dat',
+np.savetxt('temperature_profile_Roman.dat',
     np.column_stack((r_uniform, temperature_uniform)),
     header='r[R_p] temperature[K]',
     fmt='%.10e'
 )
 
-np.savetxt('velocity_profile_ATES.dat',
+np.savetxt('velocity_profile_Roman.dat',
     np.column_stack((r_uniform, velocity_uniform)),
     header='r[R_p] velocity[Km/s]',
     fmt='%.10e'
@@ -74,7 +77,7 @@ plt.xlabel('Radius (Rp)')
 plt.ylabel('Temperature (K)')
 plt.title('Initial Profiles temperature')
 plt.legend()
-#plt.yscale('log')
+plt.yscale('log')
 plt.grid(True, which='both', linestyle='--', linewidth=0.5)
 plt.savefig('initial_temperature_profile.png', dpi=300, bbox_inches='tight')
 plt.show()
