@@ -54,10 +54,10 @@ data_p = np.loadtxt('./ATES/Hydro_ioniz.txt', comments='#')
 
 k_B = 1.38e-16  # erg/K
 
-rp    = data_p[30:, 0] * Rp   # [Rp] → [cm], origen en el planeta
-rho_p = data_p[30:, 1]*mp            # [g/cm³]
-v_p   = data_p[30:, 2]            # [cm/s]
-T_p   = data_p[30:, 4]            # [K]
+rp    = data_p[:, 0] * Rp   # [Rp] → [cm], origen en el planeta
+rho_p = data_p[:, 1]*mp            # [g/cm³]
+v_p   = data_p[:, 2]            # [cm/s]
+T_p   = data_p[:, 4]            # [K]
 
 cs_p = np.sqrt(k_B * T_p / mp) # velocidad del sonido (cm/s)
 r_sonic = rp[np.argmin(np.abs(v_p - cs_p))]
@@ -97,7 +97,7 @@ for i in range(n_models):
     rs = r_stand_off[i]   # radio de stand-off del modelo i [Rp]
 
     # Parte del perfil sin choque: desde 1.05 Rp hasta el stand-off
-    mask = (r_wos >= 1.05) & (r_wos <= rs)
+    mask = (r_wos >= 1.0001) & (r_wos <= rs)
     r_part1    = r_wos[mask]
     HeIM_part1 = HeIM_wos[mask]
 
@@ -121,9 +121,10 @@ for i in range(n_models):
 ax1.set_xlabel(r'Radio [$R_p$]')
 ax1.set_ylabel(r'Densidad HeIM [cm$^{-3}$]')
 ax1.set_yscale('log')
+ax1.set_ylim(10.0,5e4)
 ax1.set_title('Perfiles de HeIM con y sin choque')
 ax1.grid(alpha=0.3, ls='--', lw=0.5, which='both')
-ax1.legend(fontsize=7)
+ax1.legend(fontsize=9,loc='lower left')
 plt.tight_layout()
 plt.savefig('comparacion_HeIM_profiles.png', dpi=300, bbox_inches='tight')
 plt.show()

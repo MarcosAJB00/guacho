@@ -9,9 +9,9 @@ r,rho,v,p,T,heat,cool = \
 mp = 1.6726219e-24 # g
 rho = rho*mp
 v = v/1e5 # cm/s a km/s
-mask = (r >= 1.05) & (r <= 9.0)
+mask = (r >= 1.0001) & (r <= 9.0)
 r = r[mask]
-density = rho[mask]/10.0
+density = rho[mask]
 temperature = T[mask]
 velocity = v[mask]
 

@@ -50,7 +50,7 @@ X_f_sorted = X_final[:, sort_idx]
 # Leer archivo de abundancias de ATES
 # =============================
 
-file = 'Ion_species_adv.txt'
+file = 'Ion_species.txt'
 
 r, nhi, nhii, nhei, nheii, nheiii, nheiTR = np.loadtxt(file, unpack=True)
 
@@ -61,7 +61,7 @@ fhii   = nhii[:]/nh[:]      # HII fraction
 # ===================================
 # Perfil de Termepratura de ATES
 # ===================================
-data_T = np.loadtxt('../inputs/temperature_profile_uniform.dat', skiprows=1)
+data_T = np.loadtxt('../inputs/temperature_profile_ATES.dat', skiprows=1)
 
 r_T = data_T[:, 0]
 T = data_T[:, 1]
@@ -107,7 +107,7 @@ ax1.plot(r, nheiTR, '--', color=colors["HeIM"], label=r'$n_{HeIM}$')
 # ---- temperatura ----
 ax2 = ax1.twinx()
 
-ax2.plot(r_T, T, color='k', lw=2, ls=':', label='T')
+ax2.plot(r_T, T, color='k', lw=2, ls=':', label='T', alpha=0.6)
 
 ax2.set_ylabel('Temperatura (K)', color='k')
 ax2.tick_params(axis='y', labelcolor='k')
@@ -118,7 +118,7 @@ ax1.set_ylabel("Densidad numerica")
 ax1.set_yscale("log")
 ax1.grid(True, which='both', linestyle='--', linewidth=0.5, alpha=0.7)
 ax1.set_xlim(0.95, r_sorted[-1])
-ax1.set_ylim(1e-1, 1e10)
+#ax1.set_ylim(1e-1, 1e10)
 
 # leyenda conjunta
 lines1, labels1 = ax1.get_legend_handles_labels()
