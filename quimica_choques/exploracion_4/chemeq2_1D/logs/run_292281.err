@@ -1,0 +1,2 @@
+cpu-bind=MASK - bdw02, task  0  0 [567885]: mask 0xffffffff set
+[2026-06-11T17:55:15.049] error: *** JOB 292281 ON bdw02 CANCELLED AT 2026-06-11T17:55:15 DUE to SIGNAL Terminated ***

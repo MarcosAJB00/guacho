@@ -39,7 +39,7 @@ def parker(M, R, T, rmax_factor=30, mu=0.62):
 
     r = np.concatenate([sol_in.t[::-1], sol_out.t])
     v = np.concatenate([sol_in.y[0][::-1], sol_out.y[0]])
-    return r, v
+    return r, v, rc, cs 
 
 def density_profile(r_cm, v_cms, mdot):
     return mdot / (4 * np.pi * r_cm**2 * v_cms)
@@ -48,38 +48,35 @@ def density_profile(r_cm, v_cms, mdot):
 # ============================================================
 # PARÁMETROS
 # ============================================================
-T_star    = 3.0 * u.MK
-R_star    = 0.76 * u.R_sun
-M_star    = 0.86 * u.M_sun
-mdot_star = 4e12              # g/s 
+T_star    = 1.0 * u.MK
+R_star    = 0.586 * u.R_sun
+M_star    = 0.577 * u.M_sun
+mdot_star = 0.45e12              # g/s 
 T_star_K  = T_star.to(u.K).value
 
-a_orb     = (0.0532 * u.au).to(u.cm).value   # cm
+a_orb     = (0.0344 * u.au).to(u.cm).value   # cm
 
 # ============================================================
 # VIENTO ESTELAR
 # rmax_factor solo necesita cubrir a_orb:
 #   a_orb ~ 7e11 cm, R_sun ~ 6.96e10 cm → factor ~10, usamos 30
 # ============================================================
-r_star_m, v_star_ms = parker(M_star, R_star, T_star, rmax_factor=25)
+r_star_m, v_star_ms, r_sonic_m, cs = parker(M_star, R_star, T_star, rmax_factor=25)
 
 r_star_cm  = r_star_m  * 100.0
 v_star_cms = v_star_ms * 100.0
+r_sonic_cm = r_sonic_m * 100.0
 
 rho_star  = density_profile(r_star_cm, v_star_cms, mdot_star)
 
 au_cm = (1.0 * u.au).to(u.cm).value
 
-v_s_to_p = v_star_cms[np.argmin(np.abs(r_star_cm - a_orb))]
-rho_s_to_p = rho_star[np.argmin(np.abs(r_star_cm - a_orb))]
-
 plt.figure(figsize=(8, 5))
 plt.plot(r_star_cm/au_cm, rho_star, label='Densidad')
-plt.axvline(a_orb/au_cm, ls='--', color='k', label=f'Orbita planetaria = {a_orb/au_cm:.3f} au')
 plt.yscale('log')
 plt.xlabel('Distancia desde la estrella [au]')
 plt.ylabel('Densidad [g/cm$^3$]')
-plt.title(f'Densidad a la altura del planeta, rho ={rho_s_to_p:.3e} g/cm3')
+plt.title('Perfil de densidad del viento estelar')
 plt.legend()
 plt.grid(alpha=0.3)
 plt.tight_layout()
@@ -87,18 +84,18 @@ plt.savefig('stellar_density_wind.png', dpi=300, bbox_inches='tight')
 
 plt.figure(figsize=(8, 5))
 plt.plot(r_star_cm/au_cm, v_star_cms/1e5, label='Velocidad')
-plt.axvline(a_orb/au_cm, ls='--', color='k', label=f'Orbita planetaria = {a_orb/au_cm:.3f} au')
+plt.axvline(r_sonic_cm/au_cm,color='r',ls='--',label='Punto sónico')
 plt.yscale('log')
 plt.xlabel('Distancia desde la estrella [au]')
 plt.ylabel('Velocidad [Km/s]')
-plt.title(f'Velocidad a la altura del planeta, v_star = {(v_s_to_p/1e5):.3e} km/s')
+plt.title('Perfil de velocidad del viento estelar')
 plt.legend()
 plt.grid(alpha=0.3, axis = 'both')
 plt.tight_layout()
 plt.savefig('stellar_velocity_wind.png', dpi=300, bbox_inches='tight')
 
 
-np.savetxt('HP11_star_wind.dat',
+np.savetxt('star_wind.dat',
     np.column_stack((r_star_cm, rho_star, v_star_cms)),
     header=' r_s (cm)  density (g/cm3)  velocity (cm/s)',
     fmt='%.10e'

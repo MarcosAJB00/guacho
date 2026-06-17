@@ -1,95 +1,47 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import os
 import matplotlib.gridspec as gridspec
 import matplotlib.colors as mcolors
 from matplotlib.ticker import LogFormatterSciNotation
+
 # =========================
-# Paths
+# Leer lista de modelos
 # =========================
 
-path = "../chemeq2_1D/output/"
-models_0 = np.loadtxt(
-    "../shock_1D/output/model_list.dat", comments="#"
+path = "../output/"
+
+models_data = np.loadtxt(
+    "../../shock_1D/output/model_list.dat",
+    comments="#"
 )
 
-path_1 = "../chemeq2_1D_1/output/"
+model = models_data[:, 0]
+T0    = models_data[:, 1]
+n0    = models_data[:, 2]
+u0    = models_data[:, 3] / 1e5   # km/s
+y0    = models_data[:, 4]
 
-models_1 = np.loadtxt(
-    "../shock_1D/output_1/model_list.dat", comments="#"
-)
-
-model = np.concatenate([models_0[:, 0], models_1[:, 0]+len(models_0)])
-T0 = np.concatenate([models_0[:, 1], models_1[:, 1]])
-n0 = np.concatenate([models_0[:, 2], models_1[:, 2]])
-u0 = np.concatenate([models_0[:, 3], models_1[:, 3]])
-y0 = np.concatenate([models_0[:, 4], models_1[:, 4]])
 models_num = len(model)
+HeIM_index = 4   # columna: r HI HII HeIS HeIM HeII e-
 
-HeIM_index = 4
 HeIM_trapz = []
 
 # =========================
-# Loop sobre modelos
+# Leer outputs
 # =========================
 
 for i in range(models_num):
-
-    if i < len(models_0):
-        filename = f"{path}final_model_{int(models_0[i,0])}.dat"
-    else:
-        filename = f"{path_1}final_model_{int(models_1[i-len(models_0),0])}.dat"
-
-    print(f"Procesando archivo: {filename}")
+    filename = f"{path}final_model_{int(model[i])}.dat"
+    print(f"Procesando: {filename}")
 
     data = np.loadtxt(filename, comments="#")
-
-    # Columnas
-    r = data[:, 0]
+    r    = data[:, 0]
     HeIM = data[:, HeIM_index]
 
-    u0[i] = u0[i]/1e5 #de cm/s a km/s
-
-    # integral trapezoidal
+    # trapezoid pesa cada punto por el espaciado real dr -> físicamente correcto
     HeIM_trapz.append(np.trapezoid(HeIM, r))
 
 HeIM_trapz = np.array(HeIM_trapz)
-
-# =====================================================
-# 1) Gráfico original (modelo vs HeIM total)
-# =====================================================
-
-plt.figure(figsize=(8,6))
-norm_trapz = np.sum(HeIM_trapz)
-plt.scatter(model, HeIM_trapz/norm_trapz, s=10, color='royalblue', label='HeIM total (trapz)')
-
-plt.xlabel('Modelo')
-plt.ylabel('HeIM total')
-plt.grid()
-plt.legend()
-
-index_max_trapz = np.argmax(HeIM_trapz)
-
-T0_max_trapz = T0[index_max_trapz]
-n0_max_trapz = n0[index_max_trapz]
-u0_max_trapz = u0[index_max_trapz]
-y0_max_trapz = y0[index_max_trapz]
-
-plt.title(
-    f'Best Model {int(model[index_max_trapz])}, '
-    f'T0={T0_max_trapz:.1e}, '
-    f'n0={n0_max_trapz:.1e}, '
-    f'u0={u0_max_trapz:.1f} km/s, '
-    f'y0={y0_max_trapz:.1e}' 
-)
-
-plt.savefig(
-    "dens_HeIM.png",
-    dpi=300,
-    bbox_inches='tight'
-)
-
-plt.show()
 
 # =========================
 # Parámetros y etiquetas
@@ -99,7 +51,7 @@ PARAMS = {
     'T0': {'values': T0,  'label': r'$T_0$ [K]',          'log': True},
     'n0': {'values': n0,  'label': r'$n_0$ [1/cm3]',  'log': True},
     'u0': {'values': u0,  'label': r'$u_0$ [km/s]',        'log': False},
-    'y0': {'values': y0,  'label': r'$y_0$',               'log': True},
+    #'y0': {'values': y0,  'label': r'$y_0$',               'log': True},
 }
 param_keys = list(PARAMS.keys())
 N = len(param_keys)

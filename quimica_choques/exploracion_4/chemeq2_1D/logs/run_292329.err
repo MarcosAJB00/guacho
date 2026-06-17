@@ -1,0 +1,2 @@
+cpu-bind=MASK - bdw02, task  0  0 [23778]: mask 0xffffffff set
+[2026-06-16T21:52:47.032] error: *** JOB 292329 ON bdw02 CANCELLED AT 2026-06-16T21:52:47 DUE TO TIME LIMIT ***
