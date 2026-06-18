@@ -5,7 +5,7 @@
 #SBATCH --nodes=1                     # UN solo nodo (obligatorio para OpenMP)
 #SBATCH --ntasks=1                    # un solo proceso MPI (no usamos MPI)
 #SBATCH --cpus-per-task=32            # 32 cores para OpenMP
-#SBATCH --time=12:00:00               # tiempo maximo (HH:MM:SS), ajustar
+#SBATCH --time=7-00:00:00               # tiempo maximo (HH:MM:SS), ajustar
 #SBATCH --partition=batch           # nombre de la particion, depende del cluster
 
 # =======================================================================

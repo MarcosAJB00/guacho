@@ -19,6 +19,7 @@ for i in range(len(model_numbers)):
     x = data[1:,0] # en cm
     rho = data[1:,1] # en g/cm^3
     T = data[1:,2]  # en K
+    v = data[1:,5] # cm/s
 
     # Grid uniforme nuevo
     N_new = 1000
@@ -27,18 +28,20 @@ for i in range(len(model_numbers)):
     # Interpoladores
     dens_interp = PchipInterpolator(x, np.log10(rho))
     temp_interp = PchipInterpolator(x, T)
+    v_interp = PchipInterpolator(x, T)
 
     # Evaluar
     density_uniform = 10**dens_interp(x_uniform)
     temperature_uniform = temp_interp(x_uniform)
+    v_uniform = v_interp(x_uniform)
 
     #print(f'Model {int(model_numbers[i])} x.min(): {x.min()}')
     #print(f'Model {int(model_numbers[i])} x_uniform.min(): {x_uniform.min()}')
 
 
     np.savetxt(f'./uniform_output/model_{int(model_numbers[i])}.dat',
-        np.column_stack((x_uniform, density_uniform, temperature_uniform)),
-        header='r[R_p] density[g/cm^3] temperature[K]',
+        np.column_stack((x_uniform, density_uniform, temperature_uniform, v_uniform)),
+        header='r[R_p] density[g/cm^3] temperature[K] velocity[cm/s]',
         fmt='%.10e'
     )
 
