@@ -152,3 +152,18 @@ plt.legend()
 plt.tight_layout()
 plt.savefig("./perfiles/taus.png", dpi=300)
 plt.show()
+
+output_file = "../output/phi_tau_finales.dat"
+output_data = np.column_stack([
+    r_sorted,
+    phi_f[0, :],  # phiHI
+    phi_f[1, :],  # phiHeIS
+    phi_f[2, :],  # phiHeIM
+    tau_f[0, :],  # tauHI
+    tau_f[1, :],  # tauHeIS
+    tau_f[2, :]   # tauHeIM
+    ])
+
+header = ("r(Rp)   phiHI   phiHeIS   phiHeIM   tauHI   tauHeIS   tauHeIM")
+np.savetxt(output_file, output_data, fmt="%.8e", header=header)
+print(f"Archivo guardado: {output_file}")

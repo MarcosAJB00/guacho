@@ -23,7 +23,7 @@ a = 0.04747 * au   # distancia orbital
 # =========================
 # archivo: wavelength[nm], L_lambda[Lsun]
 #wvl_nm, L_lambda_Lsun = np.loadtxt('lxuvdata_min_fullspectra.dat', unpack=True, skiprows=1)
-wvl, F_lambda = np.loadtxt('HD85512_spectrum_scaled_to_wasp80b.dat', unpack=True, skiprows=1)
+wvl, F_lambda = np.loadtxt('HD85512_spectrum_scaled_to_WASP107_Antonia.dat', unpack=True, skiprows=1)
 # conversiones
 #wvl = wvl_nm * 10.0              # nm → Angstrom
 #L_lambda = L_lambda_Lsun * Lsun  # → erg/s
@@ -216,5 +216,5 @@ ax2.plot(lda_he11, sigma_he11,label='$a_{He1^1S} $')
 
 plt.legend(loc='upper left')
 fig.tight_layout()
-plt.savefig('spectrum_wvlbands.png',dpi=300,transparent=False,bbox_inches='tight')
+plt.savefig('spectrum_wvlbands_WASP107_Antonia.png',dpi=300,transparent=False,bbox_inches='tight')
 plt.show()

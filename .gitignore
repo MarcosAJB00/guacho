@@ -18,3 +18,5 @@ Icon*
 *.png
 *.out
 perfiles_iniciales.txt
+*.bin
+.nfs*

@@ -316,25 +316,27 @@
 
    !=======================================================================
 
-subroutine gsub(y, q, d, time, T, phHI, phHeIS, phHeIM)
-
+subroutine gsub(y, q, d, T, phHI, phHeIS, phHeIM)
     implicit none
-    real (kind=8), intent(in)  :: y(n_spec)
-    real (kind=8), intent(out) :: q(n_spec)     ! Producción
-    real (kind=8), intent(out) :: d(n_spec)     ! Tasa de pérdida
-    real (kind=8), intent(in)  :: time, T, phHI, phHeIS, phHeIM
-    real (kind=8)              :: rate(n_reac)
-    real (kind=8)              :: yy, p
+    real(kind=8) , intent(in)  :: y(n_spec)
+    real(kind=8) , intent(out) :: q(n_spec)     ! Producción
+    real(kind=8) , intent(out) :: d(n_spec)     ! Tasa de pérdida
+    !real(kind=8) , intent(in)  :: time
+    real(kind=8), intent(in)   :: T, phHI, phHeIS, phHeIM
+    real(kind=8)               :: rate(n_reac)
+    real(kind=8)               :: yy, p
     !cross section coeficitens value at 24.6 eV
     real (kind=8),parameter    :: ahI_246=1.24e-18, aheIS_246=2.42e-19, aheIM_246=4.26e-19
 
     !fraction of photons from helium recombination to ground state that can ionize hydrogen (ostebrook)
-    yy  = ahI_246*y(iHI) / (y(iHI)*ahI_246 + y(iHeIS)*aheIS_246 + y(iHeIM)*aheIM_246)
+    !yy  = ahI_246*y(iHI) / (y(iHI)*ahI_246 + y(iHeIS)*aheIS_246 + y(iHeIM)*aheIM_246)
+        
+    yy  = ahI_246*y(iHI) / (y(iHI)*ahI_246 + y(iHeIS)*aheIS_246) !+ y(iHeIM)*aheIM_246)
     !probability  of photons that can ionize hydrogen from recombination to excited levels of helium
     p   = 0.67
 
     !  Obtain rates as function of current temperature
-    call get_reaction_rates(rate,T, phHI, phHeIS, phHeIM)
+    call get_reaction_rates(rate, T, phHI, phHeIS, phHeIM)
 
     ! ================= HI =================
     ! Producción
@@ -368,7 +370,7 @@ subroutine gsub(y, q, d, time, T, phHI, phHeIS, phHeIM)
                + rate(iche31)  * y(iHI)* y(iHeIM)   &
                + rate(iche31a) * y(ie )* y(iHeIM)   &
                + rate(iche31b) * y(ie )* y(iHeIM)   &
-               + rate(iaheii_1)* y(ie )* y(iHeII)   &
+               + rate(iaheii_a)* y(ie )* y(iHeII)   & !cambie 1 por a
                + rate(iceheIS) * y(iHI)* y(iHeII)
     ! Pérdida
     d(iHeIS) = + rate(iche13a) * y(ie )  * y(iHeIS)           &
@@ -401,8 +403,9 @@ subroutine gsub(y, q, d, time, T, phHI, phHeIS, phHeIM)
                + rate(iceheII) * y(iHII) *y(iHeIS)
 
     ! Pérdida
-    d(iHeIM) = + rate(iaheii_a)* y(ie )* y(iHeII)   &
-               + rate(iceheIS) * y(iHI)*y(iHeII) 
+    d(iHeII) = + rate(iaheii_a)* y(ie )* y(iHeII)   &
+               + rate(iceheIS) * y(iHI)*y(iHeII)    &
+               + rate(iaheiim_b)* y(ie )* y(iHeII)   !apregue esta linea
 
     ! ================= e ==================
     ! Producción

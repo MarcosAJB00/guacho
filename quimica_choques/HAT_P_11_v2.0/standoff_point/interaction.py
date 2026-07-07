@@ -138,14 +138,32 @@ P_s_grid = f_Ptot_star(a_orb - r_grid)   # distancia desde la estrella
 diff = P_p_grid - P_s_grid # diferencia de presiones
 sign_changes = np.where(np.diff(np.sign(diff)))[0] #donde cambia de signo las diferencias
 
+f_rho_star = interp1d(r_s, rho_s,
+                      bounds_error=False,
+                      fill_value="extrapolate")
+
+f_vel_star = interp1d(r_s, vel_s,
+                      bounds_error=False,
+                      fill_value="extrapolate")
 print(sign_changes)
 
 if len(sign_changes) > 0:
     i = sign_changes[-1]
     r_standoff = r_grid[i]
 
+    # Distancia desde la estrella al punto de stand-off
+    r_star_off = a_orb - r_standoff
+
+    # Condiciones del viento estelar en el stand-off
+    rho_star_off = f_rho_star(r_star_off)
+    vel_star_off = f_vel_star(r_star_off)
+
     print("Stand-off point:")
     print(f"{r_standoff/Rp:.3f} Rp")
+    print(f"Distancia a la estrella = {r_star_off/au_cm:.6f} au")
+    print(f"Densidad estelar = {rho_star_off:.5e} g/cm^3")
+    print(f"Velocidad estelar = {vel_star_off/1e5:.3f} km/s")
+
 
 #Extraer las condiciones inicales para los choques
 
