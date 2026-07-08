@@ -2,11 +2,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 models = np.loadtxt('./output/model_list.dat', skiprows=1)
-model_numbers = models[:,0]
-T0_values = models[:,1]
-n0_values = models[:,2]
-u0_values = models[:,3]
-y0_values = models[:,4]
+if len(models.shape) == 1:
+    model_numbers = np.array([models[0]])
+    T0_values = np.array([models[1]])
+    n0_values = np.array([models[2]])
+    u0_values = np.array([models[3]])
+    y0_values = np.array([models[4]])
+else:
+    model_numbers = models[:,0]
+    T0_values = models[:,1]
+    n0_values = models[:,2]
+    u0_values = models[:,3]
+    y0_values = models[:,4]
 
 fig_rho, ax_rho = plt.subplots()
 fig_T, ax_T = plt.subplots()

@@ -3,7 +3,11 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import PchipInterpolator
 
 models = np.loadtxt('./output/model_list.dat', skiprows=1)
-model_numbers = models[:,0]
+
+if len(models.shape) == 1:
+    model_numbers = np.array([models[0]])
+else:
+    model_numbers = models[:,0]
 
 fig_rho, ax_rho = plt.subplots()
 fig_T, ax_T = plt.subplots()

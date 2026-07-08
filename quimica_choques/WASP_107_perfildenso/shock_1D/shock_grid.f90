@@ -4,7 +4,7 @@ program shock_grid
   real(kind=8), parameter :: kB   = 1.38d-16    ! erg/K
   real(kind=8), parameter :: mp   = 1.67d-24    ! g
   real(kind=8), parameter :: mu   = 1.3d0       ! masa media (1 para H puro, 1.3 para 10% He)
-  real(kind=8), parameter :: T_corte = 1.0d3 ! K, temperatura de corte para terminar el modelo
+  real(kind=8), parameter :: T_corte = 3.0d2 ! K, temperatura de corte para terminar el modelo
   integer :: i, j, z, k, n_model
   character(len=100) :: filename
   

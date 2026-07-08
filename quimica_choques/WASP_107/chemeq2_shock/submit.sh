@@ -4,7 +4,7 @@
 #SBATCH --error=logs/run_%j.err       # stderr
 #SBATCH --nodes=1                     # UN solo nodo (obligatorio para OpenMP)
 #SBATCH --ntasks=1                    # un solo proceso MPI (no usamos MPI)
-#SBATCH --cpus-per-task=5            # 5 cores para OpenMP
+#SBATCH --cpus-per-task=1            # 5 cores para OpenMP
 #SBATCH --time=12:00:00               # tiempo maximo (HH:MM:SS), ajustar
 #SBATCH --partition=batch           # nombre de la particion, depende del cluster
 

@@ -14,14 +14,14 @@ au_cm = (1.0 * u.au).to(u.cm).value
 # ESTRELLA
 # ===================================================
 # Viento de la estrella (Parker)
-star = np.loadtxt('HP11_star_wind.dat', comments='#')
+star = np.loadtxt('star_wind.dat', comments='#')
 
 r_s = star[:,0] #en cm
 rho_s = star[:,1] #en g/cm3
 vel_s = star[:,2] #en cm/s
 
 # Presion viento estelar
-T_star = 2.5 * u.MK
+T_star = 1.4 * u.MK
 n_star    = rho_s / mp_s
 
 Pdyn_s = rho_s * vel_s**2 # en dyn/cm2
@@ -43,7 +43,7 @@ rho_p = planet[:,1]*mp_p # en g/cm3
 vel_p = planet[:,2] # en cm/s
 T_p = planet[:,4] #en K
 
-Rp = (0.4466*u.Rjup).to(u.cm).value
+Rp = (0.94*u.Rjup).to(u.cm).value
 
 n_p    = rho_p / mp_p
 
@@ -53,9 +53,9 @@ Ptot_p = Pdyn_p + Pth_p # en dyn/cm2
 
 cs_p = np.sqrt(k_B * T_p / mp_p) # velocidad del sonido (cm/s)
 r_sonic = r_p[np.argmin(np.abs(vel_p - cs_p))]
-print(f"Radio sónica: {r_sonic:.3f} Rp")
+print(f"Radio sónico: {r_sonic:.3f} Rp")
 
-a_orb = (0.0532*u.au).to(u.cm).value #semi eje mayor del planeta
+a_orb = (0.055*u.au).to(u.cm).value #semi eje mayor del planeta
 
 cs_p 
 
@@ -64,7 +64,7 @@ cs_p
 plt.figure(figsize=(8, 5))
 plt.plot(r_s/au_cm, Ptot_s, label='Presión total')
 plt.plot(r_s/au_cm, Pdyn_s, ls='--', label='Presión dinámica')
-#plt.plot(r_s/au_cm, Pth_s, label='Presión térmica')
+plt.plot(r_s/au_cm, Pth_s, label='Presión térmica')
 plt.axvline(a_orb/au_cm, ls='--', color='k', label=f'Orbita planetaria = {a_orb/au_cm:.3f} au')
 plt.yscale('log')
 #plt.xlim((a_orb/au_cm) -0.005, (a_orb/au_cm) +0.005)
@@ -154,11 +154,11 @@ if r_standoff is not None:
     r_off = r_standoff / Rp
 
     r_list = [
-        r_off - 2.0,
-        r_off - 1.0,
+        r_off - 0.2,
+        r_off - 0.1,
         r_off,
-        r_off + 1.0,
-        r_off + 2.0
+        r_off + 0.1,
+        r_off + 0.2
     ]
 
     f_n = interp1d(r_p, n_p)

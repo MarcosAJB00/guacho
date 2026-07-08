@@ -11,11 +11,19 @@ models = np.loadtxt(
     "../../shock_1D/output/model_list.dat", comments="#"
 )
 
-model = models[:, 0]
-T0 = models[:, 1]
-n0 = models[:, 2]
-u0 = models[:, 3]  
-y0 = models[:, 4]
+if len(models.shape) == 1:
+    model = np.array([models[0]])
+    T0 = np.array([models[1]])
+    n0 = np.array([models[2]])
+    u0 = np.array([models[3]])
+    y0 = np.array([models[4]])
+else:
+    model = models[:, 0]
+    T0 = models[:, 1]
+    n0 = models[:, 2]
+    u0 = models[:, 3]  
+    y0 = models[:, 4]
+
 models_num = len(model)
 
 # =========================

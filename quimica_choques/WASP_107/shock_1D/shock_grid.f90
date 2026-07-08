@@ -4,29 +4,29 @@ program shock_grid
   real(kind=8), parameter :: kB   = 1.38d-16    ! erg/K
   real(kind=8), parameter :: mp   = 1.67d-24    ! g
   real(kind=8), parameter :: mu   = 1.3d0       ! masa media (1 para H puro, 1.3 para 10% He)
-  real(kind=8), parameter :: T_corte = 1.0d3 ! K, temperatura de corte para terminar el modelo
+  real(kind=8), parameter :: T_corte = 3.0d2 ! K, temperatura de corte para terminar el modelo
   integer :: i, j, z, k, n_model
   character(len=100) :: filename
   
-  integer, parameter :: n0_points = 5
-  integer, parameter :: T0_points = 5
-  integer, parameter :: u0_points = 5
+  integer, parameter :: n0_points = 1
+  integer, parameter :: T0_points = 1
+  integer, parameter :: u0_points = 1
   integer, parameter :: y0_points = 1
 
   real(kind=8) :: n0_grid(n0_points), T0_grid(T0_points)
   real(kind=8) :: u0_grid(u0_points), y0_grid(y0_points)
 
 !# r(Rp) n0(cm^-3) T0(K) u0(cm/s)
-!2.76907e+00 5.16754e+07 3.37261e+03 6.52690e+05
-!3.76907e+00 2.25855e+07 2.67672e+03 8.06090e+05
-!4.76907e+00 1.23921e+07 2.21866e+03 9.17809e+05
-!5.76907e+00 7.70254e+06 1.88800e+03 1.00926e+06
-!6.76907e+00 5.18455e+06 1.63724e+03 1.08937e+06
+!3.95136e+00 1.05695e+07 1.90705e+03 8.52067e+05
+!4.05136e+00 9.83283e+06 1.87108e+03 8.71269e+05
+!4.15136e+00 9.16647e+06 1.83625e+03 8.90113e+05
+!4.25136e+00 8.56112e+06 1.80243e+03 9.08641e+05
+!4.35136e+00 8.00926e+06 1.76859e+03 9.27221e+05
 
 
-  n0_grid = (/ 5.16754d+07, 2.25855d+07, 1.23921d+07, 7.70254d+06, 5.18455d+06 /) ! cm^-3
-  T0_grid = (/ 3.37261d+03, 2.67672d+03, 2.21866d+03, 1.88800d+03, 1.63724d+03 /) ! K
-  u0_grid = (/ 6.52690d+05, 8.06090d+05, 9.17809d+05, 1.00926d+06, 1.08937d+06 /) ! cm/s
+  n0_grid = (/ 9.16647e+06 /) ! cm^-3
+  T0_grid = (/ 1.83625e+03 /) ! K
+  u0_grid = (/ 8.90113e+05 /) ! cm/s
   y0_grid = (/ 0.95d0  /) ! fraccion de ionizacion inicial
   
   n_model = 0

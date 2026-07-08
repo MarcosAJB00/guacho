@@ -10,7 +10,7 @@ module load gcc
 
 # cargar entorno
 source ~/.bashrc
-conda activate guacho13
+conda activate guachos
 
 # ejecutar
 ./1D_test.exe

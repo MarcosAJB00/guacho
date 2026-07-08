@@ -4,7 +4,7 @@ program shock_grid
   real(kind=8), parameter :: kB   = 1.38d-16    ! erg/K
   real(kind=8), parameter :: mp   = 1.67d-24    ! g
   real(kind=8), parameter :: mu   = 1.3d0       ! masa media (1 para H puro, 1.3 para 10% He)
-  real(kind=8), parameter :: T_corte = 1.0d3 ! K, temperatura de corte para terminar el modelo
+  real(kind=8), parameter :: T_corte = 3.0d2 ! K, temperatura de corte para terminar el modelo
   real(kind=8), parameter :: Eheat = 2.243047d-12 ! erg, (15-13.6) ev
   real(kind=8), parameter :: FluxHI = 1.186d+13 ! cm^-2 s^-1, flujo de fotones ionizantes de H
   integer :: i, j, z, k, n_model

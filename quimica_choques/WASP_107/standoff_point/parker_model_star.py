@@ -48,13 +48,13 @@ def density_profile(r_cm, v_cms, mdot):
 # ============================================================
 # PARÁMETROS
 # ============================================================
-T_star    = 3.0 * u.MK
-R_star    = 0.76 * u.R_sun
-M_star    = 0.86 * u.M_sun
-mdot_star = 4e12              # g/s 
+T_star    = 1.4 * u.MK
+R_star    = 0.66 * u.R_sun
+M_star    = 0.69 * u.M_sun
+mdot_star = 5.0e12              # g/s 
 T_star_K  = T_star.to(u.K).value
 
-a_orb     = (0.0532 * u.au).to(u.cm).value   # cm
+a_orb     = (0.055 * u.au).to(u.cm).value   # cm
 
 # ============================================================
 # VIENTO ESTELAR
@@ -98,7 +98,7 @@ plt.tight_layout()
 plt.savefig('stellar_velocity_wind.png', dpi=300, bbox_inches='tight')
 
 
-np.savetxt('HP11_star_wind.dat',
+np.savetxt('star_wind.dat',
     np.column_stack((r_star_cm, rho_star, v_star_cms)),
     header=' r_s (cm)  density (g/cm3)  velocity (cm/s)',
     fmt='%.10e'
