@@ -221,7 +221,7 @@ program test_1D
       dtmn  = 0.0
       tnot  = ti
       itermx = 5
-      ymn(:) = 1e-20
+      ymn(:) = 1e-5
       prt = 1.0
 
       call chemsp(epsmn, epsmx, dtmn, tnot, itermx, ns, ymn, prt)
