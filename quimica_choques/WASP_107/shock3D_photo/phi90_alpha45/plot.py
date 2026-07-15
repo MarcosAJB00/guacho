@@ -76,7 +76,7 @@ v3D[mask_wind] = interp_v_p(R[mask_wind])
 # PARCHE DE SHOCK
 #coordenadas del centro del parche
 theta_c = np.deg2rad(90.0) #coordenada polar (90° es el ecuador)
-phi_c   = np.deg2rad(73.0) # coordenda azimutal (0° apunta hacia x positivos)
+phi_c   = np.deg2rad(90.0) # coordenda azimutal (0° apunta hacia x positivos)
 
 alpha   = np.deg2rad(45.0) #tamaño angular radio del parche del parche
 

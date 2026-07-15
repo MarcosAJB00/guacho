@@ -1,0 +1,16 @@
+cpu-bind=MASK - bdw02, task  0  0 [10294]: mask 0x100 set
+At line 58 of file src/test_1D_multimodel_omp.f90 (unit = 10)
+Fortran runtime error: Cannot open file '../shock_1D/uniform_output/model_1.dat': No such file or directory
+
+Error termination. Backtrace:
+#0  0x149bc52d1982 in ???
+#1  0x149bc52d2759 in ???
+#2  0x149bc52d335f in ???
+#3  0x149bc58a83d8 in ???
+#4  0x149bc58a86bd in ???
+#5  0x40425e in ???
+#6  0x40123c in ???
+#7  0x149bc4f1e60f in ???
+#8  0x149bc4f1e6bf in ???
+#9  0x401274 in ???
+#10  0xffffffffffffffff in ???
