@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 # ------------------------------------------------------------
 # Load light curves
 # ------------------------------------------------------------
-path1 = '/home/mbaracchi/guacho/quimica_choques/WASP_107/shock3D/shock_fiducial/'
-path2 = '/home/mbaracchi/guacho/quimica_choques/WASP_107/shock3D_photo/shock_fiducial/'
+path1 = '/home/mbaracchi/guacho/quimica_choques/HAT_P_11_v3/shock3D/sinchoque_exten/'
+path2 = '/home/mbaracchi/guacho/quimica_choques/HAT_P_11_v3/shock3D/shock_fiducial_exten/'
 
-curve1 = np.loadtxt(path1 + 'lightcurve_triplet.dat')
-curve2 = np.loadtxt(path2 + 'lightcurve_triplet.dat')
+curve1 = np.loadtxt(path1 + 'lightcurve_triplet_sinchoque2.dat')
+curve2 = np.loadtxt(path2 + 'lightcurve_triplet_model3.dat')
 
 phase = curve1[:,0]
 
@@ -46,7 +46,7 @@ ax.plot(
     flux,
     lw=1.5,
     color="tab:red",
-    label=r"He I $10830\,\AA$"
+    label=r"Sin Choque"
 )
 
 
@@ -56,7 +56,7 @@ ax.plot(
     lw=1.5,
     ls="--",
     color="tab:red",
-    label=r"He I $10830\,\AA$ + photo"
+    label=r"Con Choque Ale"
 )
 
 ax.set_xlabel("Orbital phase")

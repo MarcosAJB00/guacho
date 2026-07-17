@@ -73,6 +73,19 @@ au_cm = (1.0 * u.au).to(u.cm).value
 v_s_to_p = v_star_cms[np.argmin(np.abs(r_star_cm - a_orb))]
 rho_s_to_p = rho_star[np.argmin(np.abs(r_star_cm - a_orb))]
 
+R_p = 0.9412 * u.Rjup
+R_p = R_p.to(u.cm).value
+R_box = 14.0*R_p
+v_s_to_box = v_star_cms[np.argmin(np.abs(r_star_cm - a_orb - R_box))]
+rho_s_to_box = rho_star[np.argmin(np.abs(r_star_cm - a_orb - R_box))]
+
+print(f"Velocidad del viento estelar a la altura del planeta: {v_s_to_p/1e5:.3f} km/s")
+print(f"Densidad del viento estelar a la altura del planeta: {rho_s_to_p:.3e} g/cm3")
+print(f"Radio del planeta: {R_p:.3e} cm")
+print(f"Radio de la caja en z: {R_box:.3e} cm")
+print(f"Velocidad del viento estelar a la altura del borde de la caja: {v_s_to_box/1e5:.3f} km/s")
+print(f"Densidad del viento estelar a la altura del borde de la caja: {rho_s_to_box:.3e} g/cm3")
+
 plt.figure(figsize=(8, 5))
 plt.plot(r_star_cm/au_cm, rho_star, label='Densidad')
 plt.axvline(a_orb/au_cm, ls='--', color='k', label=f'Orbita planetaria = {a_orb/au_cm:.3f} au')
